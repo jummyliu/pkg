@@ -32,13 +32,20 @@ func (c *Client) run() {
 	timer := time.NewTimer(0)
 	defer func() {
 		if !timer.Stop() {
-			<-timer.C
+			select {
+			case <-timer.C:
+			default:
+			}
 		}
 	}()
 	for {
 		// Reuse timer
 		if !timer.Stop() {
-			<-timer.C
+			// 如果正常使用了 timer.C，这里会阻塞，所以需要用 select 判断下
+			select {
+			case <-timer.C:
+			default:
+			}
 		}
 		timer.Reset(30 * time.Second)
 
