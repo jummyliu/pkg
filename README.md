@@ -9,5 +9,5 @@ go get github.com/jummyliu/pkg
 
 安装指定版本
 ```sh
-go get github.com/jummyliu/pkg@v1.0.0
+go get github.com/jummyliu/pkg@v1.1.0
 ```
