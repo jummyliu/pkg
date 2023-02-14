@@ -112,3 +112,15 @@ func FillSlice[T any](slice []T, length int, fill T) []T {
 	}
 	return newSlice
 }
+
+// Reverse 在原slice上进行修改，进行倒序
+func Reverse[T any](arr []T) []T {
+	if len(arr) <= 1 {
+		return arr
+	}
+	l := len(arr)
+	for i := 0; i < l/2; i++ {
+		arr[i], arr[l-i-1] = arr[l-i-1], arr[i]
+	}
+	return arr
+}
