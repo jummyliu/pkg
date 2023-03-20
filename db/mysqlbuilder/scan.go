@@ -6,8 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
+	"strings"
 )
 
+// Select 查询数据
 func (db *DBConnect) Select(ctx context.Context, dest any, query string, args ...any) (count int64, err error) {
 	// 1. 校验 dest 是否是有效的 slice
 	val := reflect.ValueOf(dest)
@@ -66,6 +69,7 @@ func (db *DBConnect) Select(ctx context.Context, dest any, query string, args ..
 	return count, nil
 }
 
+// SelectOne 查询单条数据，不是单条数据会报错
 func (db *DBConnect) SelectOne(ctx context.Context, dest any, query string, args ...any) (err error) {
 	// 2. 预处理查询
 	var stmt *sql.Stmt
@@ -102,3 +106,32 @@ func (db *DBConnect) SelectOne(ctx context.Context, dest any, query string, args
 	}
 	return errors.New("get row data failure")
 }
+
+// SelectMany 查询总数并返回指定数据
+// 	返回的字段名，不能有预处理的参数
+func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, args ...any) (count int64, err error) {
+	countStruct := Count{}
+	countArgs := args[:]
+	countSql := RegCount.ReplaceAllString(query, "${1} COUNT(1) count ${2}")
+	hasLimit := RegLimit.FindAllString(countSql, -1)
+	if len(hasLimit) != 0 && len(hasLimit[0]) != 0 {
+		l := strings.Count(hasLimit[0], "?")
+		countArgs = countArgs[0 : len(countArgs)-l]
+		countSql = RegLimit.ReplaceAllString(countSql, "")
+	}
+	err = db.SelectOne(ctx, &countStruct, countSql, countArgs...)
+	fmt.Println(countSql, countArgs)
+	if err != nil {
+		return 0, fmt.Errorf("get data count failure: %s", err)
+	}
+	_, err = db.Select(ctx, dest, query, args...)
+	if err != nil {
+		return 0, fmt.Errorf("get data failure: %s", err)
+	}
+	return countStruct.Count, nil
+}
+
+var (
+	RegCount = regexp.MustCompile("(?i)^(SELECT).*?(FROM)")
+	RegLimit = regexp.MustCompile(`(?i)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
+)
