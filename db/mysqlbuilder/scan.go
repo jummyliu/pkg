@@ -120,7 +120,6 @@ func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, arg
 		countSql = RegLimit.ReplaceAllString(countSql, "")
 	}
 	err = db.SelectOne(ctx, &countStruct, countSql, countArgs...)
-	fmt.Println(countSql, countArgs)
 	if err != nil {
 		return 0, fmt.Errorf("get data count failure: %s", err)
 	}
