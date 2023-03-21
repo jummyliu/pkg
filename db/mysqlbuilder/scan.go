@@ -131,6 +131,6 @@ func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, arg
 }
 
 var (
-	RegCount = regexp.MustCompile("(?i)^(SELECT).*?(FROM)")
-	RegLimit = regexp.MustCompile(`(?i)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
+	RegCount = regexp.MustCompile("(?is)^(SELECT).*?(FROM)")
+	RegLimit = regexp.MustCompile(`(?is)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
 )
