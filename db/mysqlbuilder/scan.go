@@ -134,3 +134,21 @@ var (
 	RegCount = regexp.MustCompile("(?is)^(SELECT).*?(FROM)")
 	RegLimit = regexp.MustCompile(`(?is)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
 )
+
+// SelectAll 返回所有数据，如果最后有 limit 会删除
+func (db *DBConnect) SelectAll(ctx context.Context, dest any, query string, args ...any) (count int64, err error) {
+	hasLimit := RegLimit.FindAllString(query, -1)
+	if len(hasLimit) != 0 && len(hasLimit[0]) != 0 {
+		l := strings.Count(hasLimit[0], "?")
+		args = args[0 : len(args)-l]
+		query = RegLimit.ReplaceAllString(query, "")
+	}
+	count, err = db.Select(ctx, dest, query, args...)
+	if err != nil {
+		return 0, fmt.Errorf("get data failure: %s", err)
+	}
+	return
+}
+
+// MultiSelect Select, SelectMany, SelectAll 函数签名
+type MultiSelect func(ctx context.Context, dest any, query string, args ...any) (count int64, err error)
