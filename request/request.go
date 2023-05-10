@@ -112,12 +112,13 @@ func DoRequestUndercourse(url string, options ...Option) (resp *http.Response, e
 	// defer span.End()
 
 	var req *http.Request
-	switch opts.method {
-	case http.MethodPost, http.MethodPut:
-		req, err = http.NewRequest(opts.method, url, bytes.NewBuffer(opts.data))
-	default:
-		req, err = http.NewRequest(opts.method, url, nil)
-	}
+	req, err = http.NewRequest(opts.method, url, bytes.NewBuffer(opts.data))
+	// switch opts.method {
+	// case http.MethodPost, http.MethodPut:
+	// 	req, err = http.NewRequest(opts.method, url, bytes.NewBuffer(opts.data))
+	// default:
+	// 	req, err = http.NewRequest(opts.method, url, nil)
+	// }
 	if err != nil {
 		return nil, errors.New("build request failure")
 	}
