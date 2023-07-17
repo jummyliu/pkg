@@ -56,7 +56,7 @@ func printToPDFWithURL(url string, res *[]byte, actions ...chromedp.Action) chro
 func PrintToPDFWithHTML(ctx context.Context, html string, actions ...chromedp.Action) (data []byte, err error) {
 	ctx, cancel := chromedp.NewContext(ctx)
 	defer cancel()
-	if err := chromedp.Run(ctx, printToPDFWithHTML(html, &data)); err != nil {
+	if err := chromedp.Run(ctx, printToPDFWithHTML(html, &data, actions...)); err != nil {
 		return nil, err
 	}
 	return data, nil
