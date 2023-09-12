@@ -1,6 +1,7 @@
 package cryptoutil
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -8,8 +9,6 @@ import (
 	"encoding/pem"
 	"errors"
 )
-
-// TODO: 块加密
 
 // GenerateRSAKey 生成 rsa 密钥，bits 可以给 1024
 func GenerateRSAKey(bits int) (priKey []byte, pubKey []byte, err error) {
@@ -40,19 +39,53 @@ func GeneratePEMRSAKey(bits int) (priKey []byte, pubKey []byte, err error) {
 }
 
 // RSAEncrypt_ 使用 RSA 公钥加密，接收 *rsa.PublicKey 公钥
-// 	OAEP: sha256
+//
+//	OAEP: sha256
 func RSAEncrypt_(data []byte, pubKey *rsa.PublicKey) ([]byte, error) {
-	return rsa.EncryptOAEP(sha256.New(), rand.Reader, pubKey, data, nil)
+	buffer := bytes.Buffer{}
+	keySize, size := pubKey.Size(), len(data)
+	offset := 0
+	for offset < size {
+		// OAEP: 原文数据长度 <= RSA公钥模长 - (2 * 原文的摘要值长度) - 2字节
+		endIndex := offset + keySize - (2*256/8 + 2)
+		if endIndex > size {
+			endIndex = size
+		}
+		bytesOnce, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, pubKey, data[offset:endIndex], nil)
+		if err != nil {
+			return nil, err
+		}
+		buffer.Write(bytesOnce)
+		offset = endIndex
+	}
+	return buffer.Bytes(), nil
 }
 
 // RSADecrypt_ 使用 RSA 私钥解密，接收 *rsa.PrivateKey 私钥
-// 	OAEP: sha256
+//
+//	OAEP: sha256
 func RSADecrypt_(crypted []byte, priKey *rsa.PrivateKey) ([]byte, error) {
-	return rsa.DecryptOAEP(sha256.New(), rand.Reader, priKey, crypted, nil)
+	buffer := bytes.Buffer{}
+	keySize, size := priKey.Size(), len(crypted)
+	offset := 0
+	for offset < size {
+		endIndex := offset + keySize
+		if endIndex > size {
+			endIndex = size
+		}
+		bytesOnce, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, priKey, crypted[offset:endIndex], nil)
+		if err != nil {
+			return nil, err
+		}
+		buffer.Write(bytesOnce)
+		offset = endIndex
+	}
+	return buffer.Bytes(), nil
 }
 
 // RSAEncrypt 使用 RSA 公钥加密，接收 []byte 类型的公钥
-// 	OAEP: sha256
+//
+//	OAEP: sha256
 func RSAEncrypt(data, pubKey []byte) ([]byte, error) {
 	pub, err := x509.ParsePKCS1PublicKey(pubKey)
 	if err != nil {
@@ -62,7 +95,8 @@ func RSAEncrypt(data, pubKey []byte) ([]byte, error) {
 }
 
 // RSADecrypt 使用 RSA 私钥解密，接收 []byte 类型的私钥
-// 	OAEP: sha256
+//
+//	OAEP: sha256
 func RSADecrypt(data, priKey []byte) ([]byte, error) {
 	pri, err := x509.ParsePKCS1PrivateKey(priKey)
 	if err != nil {
@@ -72,7 +106,8 @@ func RSADecrypt(data, priKey []byte) ([]byte, error) {
 }
 
 // RSAEncryptPEM 使用 RSA 公钥加密，接收PEM格式的公钥
-// 	OAEP: sha256
+//
+//	OAEP: sha256
 func RSAEncryptPEM(data, pubKey []byte) ([]byte, error) {
 	key, rest := pem.Decode(pubKey)
 	if len(rest) > 0 {
@@ -82,7 +117,8 @@ func RSAEncryptPEM(data, pubKey []byte) ([]byte, error) {
 }
 
 // RSADecryptPEM 使用 RSA 私钥解密，接收PEM格式的私钥
-// 	OAEP: sha256
+//
+//	OAEP: sha256
 func RSADecryptPEM(data, priKey []byte) ([]byte, error) {
 	key, rest := pem.Decode(priKey)
 	if len(rest) > 0 {
