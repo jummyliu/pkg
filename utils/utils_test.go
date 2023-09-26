@@ -20,7 +20,7 @@ func TestExecutablePath(t *testing.T) {
 	expectVal := filepath.Dir(file)
 	actualVal := GetExecutablePath()
 	if expectVal != actualVal {
-		t.Fatalf("executable path need %s bug got %s", expectVal, actualVal)
+		t.Fatalf("executable path need %s but got %s", expectVal, actualVal)
 	}
 }
 

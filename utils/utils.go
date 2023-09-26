@@ -17,6 +17,7 @@ func UUID() string {
 }
 
 // RandomStr 随机字符串，包含大小写字母、数字、一般字符
+//
 //	字符集：abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890~!@#$%^&*-+
 func RandomStr(length int) string {
 	// 字符集
@@ -39,12 +40,13 @@ func RandomStrWithSource(length int, source string) string {
 }
 
 // GetExecutablePath 获取执行文件路径，在 main 包下面调用，能获取到准确地路径
+//
 //	通过判断是否在临时目录，区分 go run 和 go build
 //	go run:
-// 		runtime.Caller(1) 获取调用者的文件路径
+//		runtime.Caller(1) 获取调用者的文件路径
 //
 //	go build:
-// 		os.Executable() 获取文件路径
+//		os.Executable() 获取文件路径
 func GetExecutablePath() string {
 	file, err := os.Executable()
 	if err != nil {
@@ -63,17 +65,19 @@ func GetExecutablePath() string {
 }
 
 // FindIndex 返回元素在 slice 中所在的位置
-//	如果未命中，则返回 slice 长度
+//
+//	如果未命中，-1
 func FindIndex[T comparable](arr []T, target T) int {
 	for i, item := range arr {
 		if target == item {
 			return i
 		}
 	}
-	return len(arr)
+	return -1
 }
 
 // CompareStringSlice 比较两个 []string
+//
 //	如果完全一致，则返回true，否则返回false
 func CompareStringSlice(str1, str2 []string) bool {
 	if len(str1) != len(str2) {
