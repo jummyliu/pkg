@@ -5,14 +5,16 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/jummyliu/pkg/logger"
 
-	gsyslog "github.com/hashicorp/go-syslog"
+	"github.com/papertrail/remote_syslog2/syslog"
 )
 
 type SysLogger struct {
-	gsyslog.Syslogger
+	*syslog.Logger
+	// gsyslog.Syslogger
 	network  string
 	host     string
 	MaxLevel logger.Level
@@ -130,8 +132,8 @@ func (l *SysLogger) run() {
 		case meta := <-l.chLog:
 			l.log(meta.level, meta.format, meta.params...)
 		case addr := <-l.chConn:
-			if l.Syslogger != nil {
-				l.Syslogger.Close()
+			if l.Logger != nil {
+				l.Logger.Close()
 			}
 			u, err := url.Parse(addr)
 			if err != nil {
@@ -139,11 +141,25 @@ func (l *SysLogger) run() {
 			}
 			l.network = u.Scheme
 			l.host = u.Host
-			logger, err := gsyslog.DialLogger(u.Scheme, u.Host, gsyslog.Priority(defaultSysPriority), "SYSLOG", "")
+			logger, err := syslog.Dial("", u.Scheme, u.Host, nil, time.Second*5, time.Second*5, 999990)
 			if err != nil {
 				continue
 			}
-			l.Syslogger = logger
+			l.Logger = logger
+			// if l.Syslogger != nil {
+			// 	l.Syslogger.Close()
+			// }
+			// u, err := url.Parse(addr)
+			// if err != nil {
+			// 	continue
+			// }
+			// l.network = u.Scheme
+			// l.host = u.Host
+			// logger, err := gsyslog.DialLogger(u.Scheme, u.Host, gsyslog.Priority(defaultSysPriority), "SYSLOG", "")
+			// if err != nil {
+			// 	continue
+			// }
+			// l.Syslogger = logger
 		case <-l.ctx.Done():
 			return
 		}
@@ -151,8 +167,19 @@ func (l *SysLogger) run() {
 }
 
 func (l *SysLogger) log(level logger.Level, format string, params ...any) {
-	if l.Syslogger == nil {
+	if l.Logger == nil {
 		return
 	}
-	l.WriteLevel(gsyslog.Priority(level), []byte(fmt.Sprintf(format, params...)))
+	l.Write(syslog.Packet{
+		Severity: syslog.Priority(level),
+		Facility: syslog.LogLocal1,
+		Time:     time.Now(),
+		Hostname: "syslogclient",
+		Tag:      "",
+		Message:  fmt.Sprintf(format, params...),
+	})
+	// if l.Syslogger == nil {
+	// 	return
+	// }
+	// l.WriteLevel(gsyslog.Priority(level), []byte(fmt.Sprintf(format, params...)))
 }

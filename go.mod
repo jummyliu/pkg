@@ -12,7 +12,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/google/uuid v1.3.0
-	github.com/hashicorp/go-syslog v1.0.0
+	github.com/papertrail/remote_syslog2 v0.0.0-20221025131630-3efcaf211ef4
 	github.com/satori/go.uuid v1.2.0
 	github.com/segmentio/kafka-go v0.4.38
 	go.mongodb.org/mongo-driver v1.11.2
@@ -50,6 +50,5 @@ require (
 	golang.org/x/sys v0.9.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
