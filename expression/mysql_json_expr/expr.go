@@ -22,6 +22,8 @@ type Executor struct {
 	FnMap map[string]map[token.Token]conditionFn
 }
 
+var StdExecutor = New(nil)
+
 func New(fnMap map[string]map[token.Token]conditionFn) *Executor {
 	if fnMap == nil {
 		fnMap = DefaultFnMap

@@ -293,7 +293,7 @@ func reg(key string, value any, jsonAttr string) (sql string, params []any) {
 	params = append(params, p...)
 	params = append(params, val)
 	return fmt.Sprintf(
-		"JSON_EXTRACT(%s, %s COLLATE utf8mb4_0900_ai_ci REGEXP ?",
+		"JSON_EXTRACT(%s, %s) COLLATE utf8mb4_0900_ai_ci REGEXP ?",
 		jsonAttr,
 		keySql,
 	), params
