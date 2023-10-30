@@ -174,14 +174,12 @@ func LexParse(tokens []*LexNode) (lexTokens []*LexNode, err error) {
 				Type:  token.ILLEGAL,
 				Value: errors.New("illegal EOF"),
 			})
-		}
-		if utils.FindIndex[token.Token](token.StateMatrix[curState], token.LITERAL_END) == -1 {
+		} else if utils.FindIndex[token.Token](token.StateMatrix[curState], token.LITERAL_END) == -1 {
 			newTokens = append(newTokens, &LexNode{
 				Type:  token.ILLEGAL,
 				Value: errors.New("illegal MISS END"),
 			})
-		}
-		if len(stack) != 0 {
+		} else if len(stack) != 0 {
 			//  括号没闭合
 			newTokens = append(newTokens, &LexNode{
 				Type:  token.ILLEGAL,
@@ -209,7 +207,10 @@ func LexToExpr(tokens []*LexNode) (expr string) {
 			b.WriteString(LexToExpr(item.SubCond))
 			continue
 		}
-		parser := token.ParserMap[item.Type]
+		parser, ok := token.ParserMap[item.Type]
+		if !ok {
+			return ""
+		}
 		b.WriteByte(' ')
 		b.WriteString(parser.Encode(item.Value))
 	}
