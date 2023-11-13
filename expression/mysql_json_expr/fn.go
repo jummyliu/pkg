@@ -143,7 +143,7 @@ func gte[T int64 | float64 | string](key string, value any, jsonAttr string) (sq
 	params = append(params, p...)
 	params = append(params, val)
 	return fmt.Sprintf(
-		"JSON_EXTRACT(%s, %s COLLATE utf8mb4_0900_ai_ci >= ?",
+		"JSON_EXTRACT(%s, %s) COLLATE utf8mb4_0900_ai_ci >= ?",
 		jsonAttr,
 		keySql,
 	), params
@@ -158,7 +158,7 @@ func lte[T int64 | float64 | string](key string, value any, jsonAttr string) (sq
 	params = append(params, p...)
 	params = append(params, val)
 	return fmt.Sprintf(
-		"JSON_EXTRACT(%s, %s COLLATE utf8mb4_0900_ai_ci <= ?",
+		"JSON_EXTRACT(%s, %s) COLLATE utf8mb4_0900_ai_ci <= ?",
 		jsonAttr,
 		keySql,
 	), params
@@ -173,7 +173,7 @@ func gt[T int64 | float64 | string](key string, value any, jsonAttr string) (sql
 	params = append(params, p...)
 	params = append(params, val)
 	return fmt.Sprintf(
-		"JSON_EXTRACT(%s, %s COLLATE utf8mb4_0900_ai_ci > ?",
+		"JSON_EXTRACT(%s, %s) COLLATE utf8mb4_0900_ai_ci > ?",
 		jsonAttr,
 		keySql,
 	), params
@@ -188,7 +188,7 @@ func lt[T int64 | float64 | string](key string, value any, jsonAttr string) (sql
 	params = append(params, p...)
 	params = append(params, val)
 	return fmt.Sprintf(
-		"JSON_EXTRACT(%s, %s COLLATE utf8mb4_0900_ai_ci < ?",
+		"JSON_EXTRACT(%s, %s) COLLATE utf8mb4_0900_ai_ci < ?",
 		jsonAttr,
 		keySql,
 	), params
