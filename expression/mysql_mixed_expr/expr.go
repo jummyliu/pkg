@@ -1,10 +1,12 @@
-package mysql_expr
+package mysql_mixed_expr
 
 import (
 	"fmt"
 	"strings"
 
 	"github.com/jummyliu/pkg/expression"
+	"github.com/jummyliu/pkg/expression/mysql_expr"
+	"github.com/jummyliu/pkg/expression/mysql_json_expr"
 	"github.com/jummyliu/pkg/expression/token"
 )
 
@@ -19,17 +21,31 @@ const (
 )
 
 type Executor struct {
-	FnMap map[string]map[token.Token]conditionFn
+	jsonExecutor  *mysql_json_expr.Executor
+	mysqlExecutor *mysql_expr.Executor
+	// FnMap        map[string]map[token.Token]conditionFn
+
+	// KeyMap 字段映射
+	// 	存在映射 => key 转换为映射值
+	//
+	// 		字段存在 '.'，则第一个 '.' 前面作为字段名，后面作为 json 属性名
+	// 		不存在 '.'，则整体作为字段名
+	KeyMap map[string]string
 }
 
-var StdExecutor = New(nil)
+var StdExecutor = New(nil, nil, nil)
 
-func New(fnMap map[string]map[token.Token]conditionFn) *Executor {
-	if fnMap == nil {
-		fnMap = DefaultFnMap
+func New(mysqlExecutor *mysql_expr.Executor, jsonExecutor *mysql_json_expr.Executor, keyMap map[string]string) *Executor {
+	if mysqlExecutor == nil {
+		mysqlExecutor = mysql_expr.StdExecutor
+	}
+	if jsonExecutor == nil {
+		jsonExecutor = mysql_json_expr.StdExecutor
 	}
 	return &Executor{
-		FnMap: fnMap,
+		jsonExecutor:  jsonExecutor,
+		mysqlExecutor: mysqlExecutor,
+		KeyMap:        keyMap,
 	}
 }
 
@@ -106,21 +122,41 @@ func (e *Executor) DoTerm(term *expression.AstNode, prefix, suffix string) (sql 
 	if _, ok := term.Value.(string); !ok {
 		return "", nil, nil
 	}
-	fns, ok := e.FnMap[term.Value.(string)]
-	if !ok {
-		return "", nil, nil
-	}
-	fn, ok := fns[term.Right.Type]
-	if !ok {
-		return "", nil, nil
-	}
 	key := term.Left.Value.(string)
-	if len(prefix) > 0 {
-		key = fmt.Sprintf("%s.%s", prefix, key)
+	if _, ok := e.KeyMap[key]; ok {
+		key = e.KeyMap[key]
 	}
-	if len(suffix) > 0 {
-		key = fmt.Sprintf("%s.%s", key, suffix)
+
+	splitKeys := strings.SplitN(key, ".", 2)
+	if len(splitKeys) == 1 {
+		// 普通字段
+		return e.mysqlExecutor.DoTerm(&expression.AstNode{
+			Type:  term.Type,
+			Value: term.Value,
+			Left: &expression.AstNode{
+				Type:  term.Left.Type,
+				Value: splitKeys[0],
+				Left:  term.Left.Left,
+				Right: term.Left.Right,
+			},
+			Right: term.Right,
+		}, prefix, suffix)
 	}
-	sql, params = fn(key, term.Right.Value)
-	return sql, params, []string{key}
+	// json 字段
+	sql, params, keys = e.jsonExecutor.DoTerm(&expression.AstNode{
+		Type:  term.Type,
+		Value: term.Value,
+		Left: &expression.AstNode{
+			Type:  term.Left.Type,
+			Value: splitKeys[1],
+			Left:  term.Left.Left,
+			Right: term.Left.Right,
+		},
+		Right: term.Right,
+	}, prefix, suffix, splitKeys[0])
+
+	if len(keys) == 1 {
+		keys[0] = fmt.Sprintf("%s.%s", splitKeys[0], keys[0])
+	}
+	return sql, params, keys
 }

@@ -1,4 +1,4 @@
-package mysql_json_expr
+package mysql_expr
 
 import (
 	"fmt"
