@@ -9,16 +9,21 @@ import (
 
 type Executor struct {
 	FnMap map[string]map[token.Token]conditionFn
+
+	// KeyMap 字段映射
+	// 	存在映射 => key 转换为映射值
+	KeyMap map[string]string
 }
 
-var StdExecutor = New(nil)
+var StdExecutor = New(nil, nil)
 
-func New(fnMap map[string]map[token.Token]conditionFn) *Executor {
+func New(fnMap map[string]map[token.Token]conditionFn, keyMap map[string]string) *Executor {
 	if fnMap == nil {
 		fnMap = DefaultFnMap
 	}
 	return &Executor{
-		FnMap: fnMap,
+		FnMap:  fnMap,
+		KeyMap: keyMap,
 	}
 }
 
@@ -91,6 +96,9 @@ func (e *Executor) DoTerm(m map[string]any, term *expression.AstNode, prefix, su
 		return false, nil
 	}
 	key := term.Left.Value.(string)
+	if _, ok := e.KeyMap[key]; ok {
+		key = e.KeyMap[key]
+	}
 	if len(prefix) > 0 {
 		key = fmt.Sprintf("%s.%s", prefix, key)
 	}
