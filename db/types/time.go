@@ -33,11 +33,15 @@ func (t *Time) Scan(src any) error {
 	if src == nil {
 		return nil
 	}
-	if src, ok := src.([]byte); ok {
+	switch src := src.(type) {
+	case string:
+		*t = Time(datetime.ParseDate(src))
+	case []byte:
 		*t = Time(datetime.ParseDate(string(src)))
-		return nil
+	default:
+		return errors.New("try scan to JSONTime failure")
 	}
-	return errors.New("try scan to JSONTime failure")
+	return nil
 }
 
 // Value implements the driver Valuer interface.
