@@ -84,7 +84,8 @@ func equal[T comparable](key string, value any, jsonAttr string) (sql string, pa
 	params = append(params, val)
 	params = append(params, p...)
 	return fmt.Sprintf(
-		"JSON_CONTAINS(attrs, CONCAT('\"', ?, '\"'), %s)",
+		"JSON_CONTAINS(%s, CONCAT('\"', ?, '\"'), %s)",
+		jsonAttr,
 		keySql,
 	), params
 }
