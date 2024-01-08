@@ -27,12 +27,12 @@ var DefaultFnMap = map[string]map[token.Token]conditionFn{
 	"==": {
 		token.NUM:    equal[float64],
 		token.BOOL:   equal[bool],
-		token.STRING: equal[string],
+		token.STRING: equalStr,
 	},
 	"!=": {
 		token.NUM:    unEqual[float64],
 		token.BOOL:   unEqual[bool],
-		token.STRING: unEqual[string],
+		token.STRING: unEqualStr,
 	},
 	">=": {
 		token.NUM:    gte[float64],
@@ -84,7 +84,7 @@ func equal[T comparable](key string, value any, jsonAttr string) (sql string, pa
 	params = append(params, val)
 	params = append(params, p...)
 	return fmt.Sprintf(
-		"JSON_CONTAINS(%s, CONCAT('\"', ?, '\"'), %s)",
+		"JSON_CONTAINS(%s, CONCAT('', ?, ''), %s)",
 		jsonAttr,
 		keySql,
 	), params
@@ -114,7 +114,7 @@ func unEqual[T comparable](key string, value any, jsonAttr string) (sql string, 
 	params = append(params, val)
 	params = append(params, p...)
 	return fmt.Sprintf(
-		"JSON_CONTAINS(%s, CONCAT('\"', ?, '\"'), %s) = 0",
+		"JSON_CONTAINS(%s, CONCAT('', ?, ''), %s) = 0",
 		jsonAttr,
 		keySql,
 	), params
