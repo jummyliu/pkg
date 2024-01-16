@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
 	// "go.elastic.co/apm"
 	// "go.elastic.co/apm/module/apmhttp"
+	"golang.org/x/net/http2"
 )
 
 // Options request options
@@ -172,15 +174,18 @@ func DoRequestUndercourse(url string, options ...Option) (resp *http.Response, e
 	}
 	client := opts.client
 	if opts.client == nil {
-		client = &http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{
-					InsecureSkipVerify: opts.ssl,
-				},
-				DisableKeepAlives: true,
-				Proxy:             opts.proxy,
+		transport := &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: opts.ssl,
 			},
-			Timeout: time.Duration(opts.timeout) * time.Second,
+			DisableKeepAlives: true,
+			Proxy:             opts.proxy,
+		}
+		// upgrade to http2
+		http2.ConfigureTransport(transport)
+		client = &http.Client{
+			Transport: transport,
+			Timeout:   time.Duration(opts.timeout) * time.Second,
 			// CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// 	return http.ErrUseLastResponse
 			// },
