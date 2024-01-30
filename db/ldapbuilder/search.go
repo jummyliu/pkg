@@ -7,16 +7,17 @@ import (
 )
 
 // DoSearch 执行默认 ldap 查询
-// 	ReuqestOptions:
-// 	WithBaseDN[*RequestOptions]   默认为创建连接时的 DN，如果创建连接时未指定，则这里必须指定
-// 	WithControls[*RequestOptions]
-// 	db.WithSearchAttributes       默认查询全部字段
-// 	db.WithScope
-// 	db.WithDerefAliases
-// 	db.WithSizeLimit
-// 	db.WithTimeLimit
-// 	db.WithTypesOnly
-// 	db.WithPageSize
+//
+//	ReuqestOptions:
+//	WithBaseDN[*RequestOptions]   默认为创建连接时的 DN，如果创建连接时未指定，则这里必须指定
+//	WithControls[*RequestOptions]
+//	db.WithSearchAttributes       默认查询全部字段
+//	db.WithScope
+//	db.WithDerefAliases
+//	db.WithSizeLimit
+//	db.WithTimeLimit
+//	db.WithTypesOnly
+//	db.WithPageSize
 func (db *DBConnect) DoSearch(ctx context.Context, filter string, opts ...RequestOption) (results []*ldap.Entry, err error) {
 	options := db.initRequestOptions(opts...)
 	options.Filter = filter
