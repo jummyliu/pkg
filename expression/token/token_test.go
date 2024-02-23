@@ -26,6 +26,11 @@ func TestToken(t *testing.T) {
 			Result:      "&&",
 		},
 		{
+			Token:       "&",
+			TokenParser: conditionParser,
+			Result:      "&",
+		},
+		{
 			Token:       "||",
 			TokenParser: operatorParser,
 			Result:      "||",

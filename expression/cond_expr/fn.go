@@ -6,6 +6,7 @@ import (
 
 	"github.com/elastic/elastic-agent-libs/mapstr"
 	"github.com/jummyliu/pkg/expression/token"
+	"github.com/jummyliu/pkg/number"
 )
 
 // typeCheck 类型检查
@@ -73,6 +74,14 @@ var DefaultFnMap = map[string]map[token.Token]conditionFn{
 	},
 	"reg": {
 		token.STRING: reg,
+	},
+	"containsBit": {
+		token.NUM:    containsBit,
+		token.STRING: containsBit,
+	},
+	"unContainsBit": {
+		token.NUM:    unContainsBit,
+		token.STRING: unContainsBit,
 	},
 	"&": {},
 	"|": {},
@@ -215,4 +224,26 @@ func reg(m map[string]any, key string, value any) bool {
 		return false
 	}
 	return result
+}
+
+// containsBit 位运算不进行类型判断，直接转成 int64
+func containsBit(m map[string]any, key string, value any) bool {
+	mVal, err := mapstr.M(m).GetValue(key)
+	if err != nil {
+		return false
+	}
+	mIntVal := number.ParseInt[int64](mVal)
+	intVal := number.ParseInt[int64](value)
+	return mIntVal&intVal == intVal
+}
+
+// containsBit 位运算不进行类型判断，直接转成 int64
+func unContainsBit(m map[string]any, key string, value any) bool {
+	mVal, err := mapstr.M(m).GetValue(key)
+	if err != nil {
+		return false
+	}
+	mIntVal := number.ParseInt[int64](mVal)
+	intVal := number.ParseInt[int64](value)
+	return mIntVal&intVal != intVal
 }

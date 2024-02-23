@@ -45,7 +45,7 @@ func TestLexParse(t *testing.T) {
 		Result []*LexNode
 	}{
 		{
-			Expr: "test == 123 && ( keyword contains 'hello')",
+			Expr: "test == 123 && ( keyword contains 'hello' && a unContainsBit 10)",
 		},
 	}
 	for _, testCase := range testCases {
