@@ -150,11 +150,16 @@ func AceFlagsToFullStr(flags AceFlags) string {
 type AceMask uint32
 
 const (
-	// generic rights
+	// generic rights 是抽象的权限，会根据不同的对象类型，映射不同的权限
 	ADS_RIGHT_GENERIC_READ    AceMask = 0x80000000 // 读
 	ADS_RIGHT_GENERIC_WRITE   AceMask = 0x40000000 // 写
 	ADS_RIGHT_GENERIC_EXECUTE AceMask = 0x20000000 // 列出容器内容的权限
 	ADS_RIGHT_GENERIC_ALL     AceMask = 0x10000000 // 所有权限
+
+	GENERIC_READ    AceMask = 131220 // 实际 GENERIC_READ 的掩码
+	GENERIC_WRITE   AceMask = 131112 // 实际 GENERIC_WRITE 的掩码
+	GENERIC_EXECUTE AceMask = 131076 // 实际 GENERIC_EXECUTE 的掩码
+	GENERIC_ALL     AceMask = 983551 // 实际 GENERIC_ALL 的掩码
 
 	ADS_RIGHT_MAXIMUM_ALLOWED        AceMask = 0x02000000
 	ADS_RIGHT_ACCESS_SYSTEM_SECURITY AceMask = 0x01000000 // 读写SACL权限
@@ -201,10 +206,14 @@ var AceMasksMap = map[AceMask]string{
 	ADS_RIGHT_DS_CONTROL_ACCESS:      "CR",
 }
 var AceMasksFullMap = map[AceMask]string{
-	ADS_RIGHT_GENERIC_READ:           "GENERIC_READ",
-	ADS_RIGHT_GENERIC_WRITE:          "GENERIC_WRITE",
-	ADS_RIGHT_GENERIC_EXECUTE:        "GENERIC_EXECUTE",
-	ADS_RIGHT_GENERIC_ALL:            "GENERIC_ALL",
+	ADS_RIGHT_GENERIC_READ:           "GENERIC_READ(bit)",
+	ADS_RIGHT_GENERIC_WRITE:          "GENERIC_WRITE(bit)",
+	ADS_RIGHT_GENERIC_EXECUTE:        "GENERIC_EXECUTE(bit)",
+	ADS_RIGHT_GENERIC_ALL:            "GENERIC_ALL(bit)",
+	GENERIC_READ:                     "GENERIC_READ(mask)",
+	GENERIC_WRITE:                    "GENERIC_WRITE(mask)",
+	GENERIC_EXECUTE:                  "GENERIC_EXECUTE(mask)",
+	GENERIC_ALL:                      "GENERIC_ALL(mask)",
 	ADS_RIGHT_MAXIMUM_ALLOWED:        "MAXIMUM_ALLOWED",
 	ADS_RIGHT_ACCESS_SYSTEM_SECURITY: "ACCESS_SYSTEM_SECURITY",
 	ADS_RIGHT_SYNCHRONIZE:            "SYNCHRONIZE",
