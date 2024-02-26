@@ -19,6 +19,7 @@ type number interface {
 }
 
 // ParseInt 把 any 解析成指定的 int number 类型
+//
 //	T 直接返回
 //	数字类型，先转成字符串，再使用 strconv 转换
 //	字符串，使用 strconv 转换
@@ -30,8 +31,32 @@ func ParseInt[T intnumber](val any) (result T) {
 		return v
 	case string:
 		str = v
-	case int, uint, int8, uint8, int16, uint16, int32, uint32, int64, uint64, float32, float64:
-		str = fmt.Sprintf("%v", v)
+	case int:
+		return T(v)
+	case uint:
+		return T(v)
+	case int8:
+		return T(v)
+	case uint8:
+		return T(v)
+	case int16:
+		return T(v)
+	case uint16:
+		return T(v)
+	case int32:
+		return T(v)
+	case uint32:
+		return T(v)
+	case int64:
+		return T(v)
+	case uint64:
+		return T(v)
+	case float32:
+		return T(v)
+	case float64:
+		return T(v)
+	// case int, uint, int8, uint8, int16, uint16, int32, uint32, int64, uint64, float32, float64:
+	// 	str = fmt.Sprintf("%v", v)
 	default:
 		result = 0
 	}
@@ -46,6 +71,7 @@ func ParseInt[T intnumber](val any) (result T) {
 }
 
 // ParseFloat 把 any 解析成指定的 float number 类型
+//
 //	T 直接返回
 //	数字类型，先转成字符串，再使用 strconv 转换
 //	字符串，使用 strconv 转换
@@ -57,8 +83,32 @@ func ParseFloat[T floatnumber](val any) (result T) {
 		return v
 	case string:
 		str = v
-	case int, uint, int8, uint8, int16, uint16, int32, uint32, int64, uint64, float32, float64:
-		str = fmt.Sprintf("%v", v)
+	case int:
+		return T(v)
+	case uint:
+		return T(v)
+	case int8:
+		return T(v)
+	case uint8:
+		return T(v)
+	case int16:
+		return T(v)
+	case uint16:
+		return T(v)
+	case int32:
+		return T(v)
+	case uint32:
+		return T(v)
+	case int64:
+		return T(v)
+	case uint64:
+		return T(v)
+	case float32:
+		return T(v)
+	case float64:
+		return T(v)
+	// case int, uint, int8, uint8, int16, uint16, int32, uint32, int64, uint64, float32, float64:
+	// 	str = fmt.Sprintf("%v", v)
 	default:
 		result = 0
 	}
