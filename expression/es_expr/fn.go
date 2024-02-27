@@ -68,8 +68,8 @@ func equal[T comparable](key string, value any) map[string]any {
 	return map[string]any{
 		"term": map[string]any{
 			key: map[string]any{
-				"case_insensitive": true,
-				"value":            val,
+				// "case_insensitive": true,
+				"value": val,
 			},
 		},
 	}
@@ -99,11 +99,11 @@ func unEqual[T comparable](key string, value any) map[string]any {
 	return map[string]any{
 		"bool": map[string]any{
 			"must_not": []map[string]any{
-				map[string]any{
+				{
 					"term": map[string]any{
 						key: map[string]any{
-							"case_insensitive": true,
-							"value":            val,
+							// "case_insensitive": true,
+							"value": val,
 						},
 					},
 				},
@@ -121,7 +121,7 @@ func unEqualStr(key string, value any) map[string]any {
 	return map[string]any{
 		"bool": map[string]any{
 			"must_not": []map[string]any{
-				map[string]any{
+				{
 					"term": map[string]any{
 						key: map[string]any{
 							"case_insensitive": true,
@@ -215,7 +215,7 @@ func unContains(key string, value any) map[string]any {
 	return map[string]any{
 		"bool": map[string]any{
 			"must_not": []map[string]any{
-				map[string]any{
+				{
 					"wildcard": map[string]any{
 						key: map[string]any{
 							"case_insensitive": true,
@@ -253,7 +253,7 @@ func unStartsWith(key string, value any) map[string]any {
 	return map[string]any{
 		"bool": map[string]any{
 			"must_not": []map[string]any{
-				map[string]any{
+				{
 					"wildcard": map[string]any{
 						key: map[string]any{
 							"case_insensitive": true,
@@ -291,7 +291,7 @@ func unEndsWith(key string, value any) map[string]any {
 	return map[string]any{
 		"bool": map[string]any{
 			"must_not": []map[string]any{
-				map[string]any{
+				{
 					"wildcard": map[string]any{
 						key: map[string]any{
 							"case_insensitive": true,
