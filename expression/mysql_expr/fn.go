@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jummyliu/pkg/expression/token"
+	"github.com/jummyliu/pkg/number"
 )
 
 type conditionFn func(key string, value any) (sqls string, params []any)
@@ -55,6 +56,14 @@ var DefaultFnMap = map[string]map[token.Token]conditionFn{
 	},
 	"reg": {
 		token.STRING: reg,
+	},
+	"containsBit": {
+		token.NUM:    containsBit,
+		token.STRING: containsBit,
+	},
+	"unContainsBit": {
+		token.NUM:    unContainsBit,
+		token.STRING: unContainsBit,
 	},
 	"&": {},
 	"|": {},
@@ -162,4 +171,16 @@ func reg(key string, value any) (sql string, params []any) {
 		return "", nil
 	}
 	return fmt.Sprintf("%s REGEXP ?", key), []any{val}
+}
+
+// containsBit 位运算不进行类型判断，直接转成 int64
+func containsBit(key string, value any) (sql string, params []any) {
+	intVal := number.ParseInt[int64](value)
+	return fmt.Sprintf("%s & ? = ?", key), []any{intVal, intVal}
+}
+
+// containsBit 位运算不进行类型判断，直接转成 int64
+func unContainsBit(key string, value any) (sql string, params []any) {
+	intVal := number.ParseInt[int64](value)
+	return fmt.Sprintf("%s & ? != ?", key), []any{intVal, intVal}
 }

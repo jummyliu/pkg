@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/jummyliu/pkg/expression/token"
+	"github.com/jummyliu/pkg/number"
 )
 
 func buildKey(key string) (sql string, params []any) {
@@ -70,6 +71,14 @@ var DefaultFnMap = map[string]map[token.Token]conditionFn{
 	},
 	"reg": {
 		token.STRING: reg,
+	},
+	"containsBit": {
+		token.NUM:    containsBit,
+		token.STRING: containsBit,
+	},
+	"unContainsBit": {
+		token.NUM:    unContainsBit,
+		token.STRING: unContainsBit,
 	},
 	"&": {},
 	"|": {},
@@ -295,6 +304,32 @@ func reg(key string, value any, jsonAttr string) (sql string, params []any) {
 	params = append(params, val)
 	return fmt.Sprintf(
 		"JSON_EXTRACT(%s, %s) COLLATE utf8mb4_0900_ai_ci REGEXP ?",
+		jsonAttr,
+		keySql,
+	), params
+}
+
+// containsBit 位运算不进行类型判断，直接转成 int64
+func containsBit(key string, value any, jsonAttr string) (sql string, params []any) {
+	intVal := number.ParseInt[int64](value)
+	keySql, p := buildKey(key)
+	params = append(params, p...)
+	params = append(params, intVal, intVal)
+	return fmt.Sprintf(
+		"JSON_EXTRACT(%s, %s) & ? = ?",
+		jsonAttr,
+		keySql,
+	), params
+}
+
+// containsBit 位运算不进行类型判断，直接转成 int64
+func unContainsBit(key string, value any, jsonAttr string) (sql string, params []any) {
+	intVal := number.ParseInt[int64](value)
+	keySql, p := buildKey(key)
+	params = append(params, p...)
+	params = append(params, intVal, intVal)
+	return fmt.Sprintf(
+		"JSON_EXTRACT(%s, %s) & ? != ?",
 		jsonAttr,
 		keySql,
 	), params
