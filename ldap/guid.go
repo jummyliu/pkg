@@ -62,7 +62,15 @@ func (g *Guid) String() string {
 
 // Alias return friendly guid name
 func (g *Guid) Alias() string {
-	guid := g.String()
+	return GUIDToFullStr(g.String())
+}
+
+func (g Guid) MarshalJSON() ([]byte, error) {
+	tmp := fmt.Sprintf("\"%s\"", g.String())
+	return []byte(tmp), nil
+}
+
+func GUIDToFullStr(guid string) string {
 	if val, ok := SchemaObjects[guid]; ok {
 		return fmt.Sprintf("%s(%s)", val, guid)
 	}
@@ -70,11 +78,6 @@ func (g *Guid) Alias() string {
 		return fmt.Sprintf("%s(%s)", val, guid)
 	}
 	return guid
-}
-
-func (g Guid) MarshalJSON() ([]byte, error) {
-	tmp := fmt.Sprintf("\"%s\"", g.String())
-	return []byte(tmp), nil
 }
 
 var SchemaObjects = map[string]string{
