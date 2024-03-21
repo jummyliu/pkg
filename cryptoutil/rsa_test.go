@@ -141,3 +141,115 @@ y34eCNgPMxVv47W78ZPOzl7gKAlwD3+ZY2pLLyXYP+4bjl1Yuj7nBw==
 	json.Unmarshal(data, &m)
 	t.Logf("%#v", m)
 }
+
+func TestRSASign(t *testing.T) {
+	priKey := `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAryX6bELihivaq54fWF3oBgfPg0Rh2zeCU9bmyVYS5aOm6XIn
+aTAaxJ7h9jZeTmEEuLv9DNTDx7gBNZWfcF8npDg67IBQuelDFLDx6nHV3WbsP2Vs
+lf6y4ch1LM2GFajjDqOVXJDTtBCnvK43KktLHT5HyGcjMFiRmRzs5i9ojQTXAuP2
+0pkcVF9BlnnSBEBHQmRl1dFfrjQgWoqlVbScIPgjDJ39FIZxTsZZdqFoPNABbVSu
+Lz0rLPwqN5Y5DxDvcRO3ewnEsJXPAjeG8GaUONFJt6cvuqXcK4OQc2BeymnhsiQ5
+0vT2AAQZaLUOV+zp21mKCMZceKzCGP5QuynAMwIDAQABAoIBAH/XnL5A489DW01B
+EWgSwzUDpngOBc9Y6QwBJFt5NDniBgcHh7TDpAY4Yn6wmI1lS2j77mzbMDwrFtbh
+64q+KdU4JepSjpnkpU4JCcsyZARDB9YOVf/19OPQyZZ2PZS5vWIGDROPsrcQIR8b
+mrCIXL9voj2o6opzW3MDJfeuSwYCeT+HbxWHg5plyDD7SvWwMkzVnk3OgROZdGIh
+4UkMM7XP06UiMc5H341ubCGUyTz8Th2NdUjs9URGt8TacMcqPde/Zua/Wz6jVAV/
+15RjMknOhpSSkijdF4qrvupFfpcXH6ORsXX+yBijX7PdSraAclqMNszGyZTFQwRX
+8erZz6ECgYEA07Q8xHGKE3LeCfVnx+GGmVrsylZRo+Z5cvaP4Dgju58kUuwxuVo5
+otFFNjJEDG6Ey6eiVtcUAj7dAVshqtfihc19jjDZPSOPMfkf7zLoOACZGMO4iw4+
+ikq6352N1mgZouV35VGH6oRqxqMyQj9GF8IUvbkjhWd7hwzuglybNNcCgYEA08up
+y120lhbSJC1khOAG+mfHLgzBhYZiE3V04ChYybhJtkituzHYn7XK+1KS3BXY7Pr1
+To4SWaqFKUUp93Zr2AWDt1Tm8d28Ygjr8G0N+7w6ljBbRDgKwY6QxMD94FGV+RXr
+QnYqM+FC1t/8Q+NVJoKCuETyHfe/Bzwf9Lb9CAUCgYBMTLVqB5HAGLI13KCexYWB
+V+fntNyPuc0jxgFsyk72nBC3YjE5oG8NY2cSdWNZJ6vsymoT6khn1shIaNPlgxE9
+MCaETM6+3kYJuMPtredL58tFxaSJWYToyq43Uc2A7NvwfcuMdqoJt9fT55WBktRs
+U6KuDj/jILzAm8SKb13w2QKBgQCmTzjHbo+Ng+IDcnmKNXiFTNSE/pM/zGRbL1JV
+apk93S5UqwFxCxU1ZEU90HttwuISRIY35yvVqSbjX2Iy5ZSNjtb9MPggWKPCv4q1
+wozGben7YYFpMjCQCOj49yrj6GzBqUqRZ8R/9JTNshifHnYQxU7sb4dHrPEeN0JI
+oSBUGQKBgQCRgAncm+nB75AqI5FG9/LYSQmctPDfvu35TPU5U5vl9mNwrq3ANEd3
+WdaWzX1AJRcBpA7NodApi7LS2VydAIOrkUTlVZGRIYcfy0D3rhsN4/3+q0hjjZS8
+y34eCNgPMxVv47W78ZPOzl7gKAlwD3+ZY2pLLyXYP+4bjl1Yuj7nBw==
+-----END RSA PRIVATE KEY-----
+`
+	data := "hello world"
+	signature, err := RSASignPKCS1v15PEM([]byte(data), []byte(priKey))
+	if err != nil {
+		t.Fatalf("data sign failure: %s", err)
+	}
+	t.Logf("signature:%s", signature)
+}
+
+func TestRSAVerify(t *testing.T) {
+	pubKey := `-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEAryX6bELihivaq54fWF3oBgfPg0Rh2zeCU9bmyVYS5aOm6XInaTAa
+xJ7h9jZeTmEEuLv9DNTDx7gBNZWfcF8npDg67IBQuelDFLDx6nHV3WbsP2Vslf6y
+4ch1LM2GFajjDqOVXJDTtBCnvK43KktLHT5HyGcjMFiRmRzs5i9ojQTXAuP20pkc
+VF9BlnnSBEBHQmRl1dFfrjQgWoqlVbScIPgjDJ39FIZxTsZZdqFoPNABbVSuLz0r
+LPwqN5Y5DxDvcRO3ewnEsJXPAjeG8GaUONFJt6cvuqXcK4OQc2BeymnhsiQ50vT2
+AAQZaLUOV+zp21mKCMZceKzCGP5QuynAMwIDAQAB
+-----END RSA PUBLIC KEY-----
+`
+	data := "hello world"
+	signature := "B/IPEZPElGflFJAp2omLMpY4y76LWhNGq0jF0NO+A1Mmrcpi0J3giF7N0kNXe8NZC7er98rNsqKtPjN5cDQ3slLanEOIIa4bfXyIsZDIuTEQz0XM2W9ZUMoJ7uSxcjtbvQBTG/gYWwg90uOTQCHSJ5XbnJY5W5ezCuwTzbDL7GNON3wWRNfkoRzqfM81uRoJMbBQfYSgUF5joROZVAJYeVQRSzBhs/YsMlh68XUlkd5pHyvy+4rAbXvilScfVdeU5v+vkFHtsSvg5hofdpfLNV19IhpZY/8SUFrRGn1YW991Mdhn7jZsqE+41d70FKNyjSHQIz3EW/hYhJJJBx4swA=="
+	err := RSAVerifyPKCS1v15PEM([]byte(data), signature, []byte(pubKey))
+	if err != nil {
+		t.Fatalf("data verify failure: %s", err)
+	}
+	t.Logf("verify sign success")
+}
+
+func TestRSASignPSS(t *testing.T) {
+	priKey := `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAryX6bELihivaq54fWF3oBgfPg0Rh2zeCU9bmyVYS5aOm6XIn
+aTAaxJ7h9jZeTmEEuLv9DNTDx7gBNZWfcF8npDg67IBQuelDFLDx6nHV3WbsP2Vs
+lf6y4ch1LM2GFajjDqOVXJDTtBCnvK43KktLHT5HyGcjMFiRmRzs5i9ojQTXAuP2
+0pkcVF9BlnnSBEBHQmRl1dFfrjQgWoqlVbScIPgjDJ39FIZxTsZZdqFoPNABbVSu
+Lz0rLPwqN5Y5DxDvcRO3ewnEsJXPAjeG8GaUONFJt6cvuqXcK4OQc2BeymnhsiQ5
+0vT2AAQZaLUOV+zp21mKCMZceKzCGP5QuynAMwIDAQABAoIBAH/XnL5A489DW01B
+EWgSwzUDpngOBc9Y6QwBJFt5NDniBgcHh7TDpAY4Yn6wmI1lS2j77mzbMDwrFtbh
+64q+KdU4JepSjpnkpU4JCcsyZARDB9YOVf/19OPQyZZ2PZS5vWIGDROPsrcQIR8b
+mrCIXL9voj2o6opzW3MDJfeuSwYCeT+HbxWHg5plyDD7SvWwMkzVnk3OgROZdGIh
+4UkMM7XP06UiMc5H341ubCGUyTz8Th2NdUjs9URGt8TacMcqPde/Zua/Wz6jVAV/
+15RjMknOhpSSkijdF4qrvupFfpcXH6ORsXX+yBijX7PdSraAclqMNszGyZTFQwRX
+8erZz6ECgYEA07Q8xHGKE3LeCfVnx+GGmVrsylZRo+Z5cvaP4Dgju58kUuwxuVo5
+otFFNjJEDG6Ey6eiVtcUAj7dAVshqtfihc19jjDZPSOPMfkf7zLoOACZGMO4iw4+
+ikq6352N1mgZouV35VGH6oRqxqMyQj9GF8IUvbkjhWd7hwzuglybNNcCgYEA08up
+y120lhbSJC1khOAG+mfHLgzBhYZiE3V04ChYybhJtkituzHYn7XK+1KS3BXY7Pr1
+To4SWaqFKUUp93Zr2AWDt1Tm8d28Ygjr8G0N+7w6ljBbRDgKwY6QxMD94FGV+RXr
+QnYqM+FC1t/8Q+NVJoKCuETyHfe/Bzwf9Lb9CAUCgYBMTLVqB5HAGLI13KCexYWB
+V+fntNyPuc0jxgFsyk72nBC3YjE5oG8NY2cSdWNZJ6vsymoT6khn1shIaNPlgxE9
+MCaETM6+3kYJuMPtredL58tFxaSJWYToyq43Uc2A7NvwfcuMdqoJt9fT55WBktRs
+U6KuDj/jILzAm8SKb13w2QKBgQCmTzjHbo+Ng+IDcnmKNXiFTNSE/pM/zGRbL1JV
+apk93S5UqwFxCxU1ZEU90HttwuISRIY35yvVqSbjX2Iy5ZSNjtb9MPggWKPCv4q1
+wozGben7YYFpMjCQCOj49yrj6GzBqUqRZ8R/9JTNshifHnYQxU7sb4dHrPEeN0JI
+oSBUGQKBgQCRgAncm+nB75AqI5FG9/LYSQmctPDfvu35TPU5U5vl9mNwrq3ANEd3
+WdaWzX1AJRcBpA7NodApi7LS2VydAIOrkUTlVZGRIYcfy0D3rhsN4/3+q0hjjZS8
+y34eCNgPMxVv47W78ZPOzl7gKAlwD3+ZY2pLLyXYP+4bjl1Yuj7nBw==
+-----END RSA PRIVATE KEY-----
+`
+	data := "hello world"
+	signature, err := RSASignPSSPEM([]byte(data), []byte(priKey))
+	if err != nil {
+		t.Fatalf("data sign failure: %s", err)
+	}
+	t.Logf("signature:%s", signature)
+}
+
+func TestRSAVerifyPSS(t *testing.T) {
+	pubKey := `-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEAryX6bELihivaq54fWF3oBgfPg0Rh2zeCU9bmyVYS5aOm6XInaTAa
+xJ7h9jZeTmEEuLv9DNTDx7gBNZWfcF8npDg67IBQuelDFLDx6nHV3WbsP2Vslf6y
+4ch1LM2GFajjDqOVXJDTtBCnvK43KktLHT5HyGcjMFiRmRzs5i9ojQTXAuP20pkc
+VF9BlnnSBEBHQmRl1dFfrjQgWoqlVbScIPgjDJ39FIZxTsZZdqFoPNABbVSuLz0r
+LPwqN5Y5DxDvcRO3ewnEsJXPAjeG8GaUONFJt6cvuqXcK4OQc2BeymnhsiQ50vT2
+AAQZaLUOV+zp21mKCMZceKzCGP5QuynAMwIDAQAB
+-----END RSA PUBLIC KEY-----
+`
+	data := "hello world"
+	signature := "Xz17qPx7BYtP80vSxC3ucYrpNAhhj0r5eiJL9hqMPmTgWxGAjuJTHeqSu5r4N7cuIhDWIh1KwxIsk6i1ca+rIG8Qf4EcYYd6gk30qH+q7+Oph9iP7gnISxS2pCcaz+bLo6hvkJos5oNAA7g0+Gz5RZi6wkVI24RZWmk+eQfbpZIkKxXx7pWod+PQiwL5jKDQj4SZrvqkeJhbBUiNoKoLJS14B+zRzej4f3+g2OkP9n6TNJk98gkpljEYN6mPXv78CLogRQe5xP7wHo93fy9Q2fM1fiNajiaSNCLlwYmw+pDvPbua7qv3glGE2VEpYcNXP3mXIDtlOO7kJwLADMpSGA=="
+	err := RSAVerifyPSSPEM([]byte(data), signature, []byte(pubKey))
+	if err != nil {
+		t.Fatalf("data verify failure: %s", err)
+	}
+	t.Logf("verify sign success")
+}

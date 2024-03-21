@@ -2,15 +2,17 @@ package cryptoutil
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 )
 
-// GenerateRSAKey 生成 rsa 密钥，bits 可以给 1024
+// GenerateRSAKey 生成 rsa 密钥，bits 可以给 2048
 func GenerateRSAKey(bits int) (priKey []byte, pubKey []byte, err error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
@@ -21,7 +23,7 @@ func GenerateRSAKey(bits int) (priKey []byte, pubKey []byte, err error) {
 	return
 }
 
-// GeneratePEMRSAKey 生成 PEM格式 的 rsa 密钥，bits 可以给 1024
+// GeneratePEMRSAKey 生成 PEM格式 的 rsa 密钥，bits 可以给 2048
 func GeneratePEMRSAKey(bits int) (priKey []byte, pubKey []byte, err error) {
 	pri, pub, err := GenerateRSAKey(bits)
 	if err != nil {
@@ -125,4 +127,67 @@ func RSADecryptPEM(data, priKey []byte) ([]byte, error) {
 		return nil, errors.New("invalid private key")
 	}
 	return RSADecrypt(data, key.Bytes)
+}
+
+// RSASignPSS_ 使用 rsa 私钥签名（PSS），接收 *rsa.PrivateKey 私钥
+func RSASignPSS_(data []byte, priKey *rsa.PrivateKey) (string, error) {
+	hashAlgorithm := crypto.SHA256
+	instance := hashAlgorithm.New()
+	instance.Write(data)
+	hashed := instance.Sum(nil)
+	bytes, err := rsa.SignPSS(rand.Reader, priKey, hashAlgorithm, hashed, nil)
+	// bytes, err := rsa.SignPSS(rand.Reader, priKey, hashAlgorithm, hashed)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(bytes), nil
+}
+
+// RSAVerifyPSS_ 使用 rsa 公钥验签（PSS），接收 *rsa.PublicKey 公钥
+func RSAVerifyPSS_(data []byte, signStr string, pubKey *rsa.PublicKey) error {
+	signature, err := base64.StdEncoding.DecodeString(signStr)
+	if err != nil {
+		return err
+	}
+	hashAlgorithm := crypto.SHA256
+	instance := hashAlgorithm.New()
+	instance.Write(data)
+	hashed := instance.Sum(nil)
+	return rsa.VerifyPSS(pubKey, hashAlgorithm, hashed, signature, nil)
+}
+
+// RSASignPSS 使用 rsa 私钥签名（PSS），接收 []byte 类型的私钥
+func RSASignPSS(data, priKey []byte) (string, error) {
+	pri, err := x509.ParsePKCS1PrivateKey(priKey)
+	if err != nil {
+		return "", err
+	}
+	return RSASignPSS_(data, pri)
+}
+
+// RSAVerifyPSS 使用 rsa 公钥验签（PSS），接收 []byte 类型的公钥
+func RSAVerifyPSS(data []byte, signStr string, pubKey []byte) error {
+	pub, err := x509.ParsePKCS1PublicKey(pubKey)
+	if err != nil {
+		return err
+	}
+	return RSAVerifyPSS_(data, signStr, pub)
+}
+
+// RSASignPSSPEM 使用 rsa 私钥签名（PSS），接收PEM格式的私钥
+func RSASignPSSPEM(data, priKey []byte) (string, error) {
+	key, rest := pem.Decode(priKey)
+	if len(rest) > 0 {
+		return "", errors.New("invalid private key")
+	}
+	return RSASignPSS(data, key.Bytes)
+}
+
+// RSAVerifyPSSPEM 使用 rsa 公钥验签（PSS），接收PEM格式的公钥
+func RSAVerifyPSSPEM(data []byte, signStr string, pubKey []byte) error {
+	key, rest := pem.Decode(pubKey)
+	if len(rest) > 0 {
+		return errors.New("invalid public key")
+	}
+	return RSAVerifyPSS(data, signStr, key.Bytes)
 }
