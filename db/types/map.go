@@ -32,6 +32,17 @@ func (m Map[T, Q]) Value() (driver.Value, error) {
 	return json.Marshal(m)
 }
 
+// String implements flag.Value::String interface.
+func (m Map[T, Q]) String() string {
+	val, _ := json.Marshal(m)
+	return string(val)
+}
+
+// Set implements flag.Value::Set interface.
+func (m *Map[T, Q]) Set(val string) error {
+	return json.Unmarshal([]byte(val), m)
+}
+
 func MustGetValue[T any](m map[string]any, key string) (result T) {
 	v, err := mapstr.M(m).GetValue(key)
 	if v, ok := v.(T); err == nil && ok {

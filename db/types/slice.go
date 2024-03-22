@@ -29,3 +29,14 @@ func (t Slice[T]) Value() (driver.Value, error) {
 	}
 	return json.Marshal(t)
 }
+
+// String implements flag.Value::String interface.
+func (t Slice[T]) String() string {
+	val, _ := json.Marshal(t)
+	return string(val)
+}
+
+// Set implements flag.Value::Set interface.
+func (t *Slice[T]) Set(val string) error {
+	return json.Unmarshal([]byte(val), t)
+}
