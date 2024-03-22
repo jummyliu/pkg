@@ -48,3 +48,18 @@ func (t *Time) Scan(src any) error {
 func (t Time) Value() (driver.Value, error) {
 	return time.Time(t), nil
 }
+
+// String implements flag.Value::String interface.
+func (t Time) String() string {
+	return datetime.FormatDate(time.Time(t))
+}
+
+// Set implements flag.Value::Set interface.
+func (t *Time) Set(val string) error {
+	tmp, err := time.ParseInLocation(datetime.DatetimeLayout, val, time.Local)
+	if err != nil {
+		tmp = time.Time{}
+	}
+	*t = Time(tmp)
+	return nil
+}

@@ -35,6 +35,9 @@ func PKCS5Padding(data []byte, blockSize int) []byte {
 
 func PKCS5UnPadding(data []byte) []byte {
 	length := len(data)
+	if length == 0 {
+		return data
+	}
 	unpadding := int(data[length-1])
 	return data[:length-unpadding]
 }
