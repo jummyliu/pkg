@@ -57,6 +57,12 @@ var DefaultFnMap = map[string]map[token.Token]conditionFn{
 	"reg": {
 		token.STRING: reg,
 	},
+	"in": {
+		token.STRING: in,
+	},
+	"notIn": {
+		token.STRING: notIn,
+	},
 	"containsBit": {
 		token.NUM:    containsBit,
 		token.STRING: containsBit,
@@ -171,6 +177,22 @@ func reg(key string, value any) (sql string, params []any) {
 		return "", nil
 	}
 	return fmt.Sprintf("%s REGEXP ?", key), []any{val}
+}
+
+func in(key string, value any) (sql string, params []any) {
+	val, ok := value.(string)
+	if !ok {
+		return "", nil
+	}
+	return fmt.Sprintf("FIND_IN_SET(`%s`, ?)", key), []any{val}
+}
+
+func notIn(key string, value any) (sql string, params []any) {
+	val, ok := value.(string)
+	if !ok {
+		return "", nil
+	}
+	return fmt.Sprintf("!FIND_IN_SET(`%s`, ?)", key), []any{val}
 }
 
 // containsBit 位运算不进行类型判断，直接转成 int64

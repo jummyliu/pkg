@@ -2,6 +2,7 @@ package es_expr
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jummyliu/pkg/expression/token"
 )
@@ -55,6 +56,12 @@ var DefaultFnMap = map[string]map[token.Token]conditionFn{
 	},
 	"reg": {
 		token.STRING: reg,
+	},
+	"in": {
+		token.STRING: in,
+	},
+	"notIn": {
+		token.STRING: notIn,
 	},
 	"&": {},
 	"|": {},
@@ -313,6 +320,36 @@ func reg(key string, value any) map[string]any {
 	return map[string]any{
 		"regexp": map[string]any{
 			key: val,
+		},
+	}
+}
+
+func in(key string, value any) map[string]any {
+	val, ok := value.(string)
+	if !ok {
+		return nil
+	}
+	return map[string]any{
+		"terms": map[string]any{
+			key: strings.Split(val, ","),
+		},
+	}
+}
+
+func notIn(key string, value any) map[string]any {
+	val, ok := value.(string)
+	if !ok {
+		return nil
+	}
+	return map[string]any{
+		"bool": map[string]any{
+			"must_not": []map[string]any{
+				{
+					"terms": map[string]any{
+						key: strings.Split(val, ","),
+					},
+				},
+			},
 		},
 	}
 }
