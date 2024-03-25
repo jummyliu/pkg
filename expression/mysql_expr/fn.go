@@ -192,7 +192,7 @@ func notIn(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("!FIND_IN_SET(`%s`, ?)", key), []any{val}
+	return fmt.Sprintf("NOT FIND_IN_SET(`%s`, ?)", key), []any{val}
 }
 
 // containsBit 位运算不进行类型判断，直接转成 int64
