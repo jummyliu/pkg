@@ -339,7 +339,7 @@ func notIn(key string, value any, jsonAttr string) (sql string, params []any) {
 	params = append(params, p...)
 	params = append(params, val)
 	return fmt.Sprintf(
-		"!FIND_IN_SET(JSON_UNQUOTE(JSON_EXTRACT(%s , %s)), ?)",
+		"NOT FIND_IN_SET(JSON_UNQUOTE(JSON_EXTRACT(%s , %s)), ?)",
 		jsonAttr,
 		keySql,
 	), params
