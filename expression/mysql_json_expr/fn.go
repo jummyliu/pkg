@@ -72,6 +72,12 @@ var DefaultFnMap = map[string]map[token.Token]conditionFn{
 	"reg": {
 		token.STRING: reg,
 	},
+	"in": {
+		token.STRING: in,
+	},
+	"notIn": {
+		token.STRING: notIn,
+	},
 	"containsBit": {
 		token.NUM:    containsBit,
 		token.STRING: containsBit,
@@ -304,6 +310,36 @@ func reg(key string, value any, jsonAttr string) (sql string, params []any) {
 	params = append(params, val)
 	return fmt.Sprintf(
 		"JSON_EXTRACT(%s, %s) COLLATE utf8mb4_0900_ai_ci REGEXP ?",
+		jsonAttr,
+		keySql,
+	), params
+}
+
+func in(key string, value any, jsonAttr string) (sql string, params []any) {
+	val, ok := value.(string)
+	if !ok {
+		return "", nil
+	}
+	keySql, p := buildKey(key)
+	params = append(params, p...)
+	params = append(params, val)
+	return fmt.Sprintf(
+		"FIND_IN_SET(JSON_UNQUOTE(JSON_EXTRACT(%s , %s)), ?)",
+		jsonAttr,
+		keySql,
+	), params
+}
+
+func notIn(key string, value any, jsonAttr string) (sql string, params []any) {
+	val, ok := value.(string)
+	if !ok {
+		return "", nil
+	}
+	keySql, p := buildKey(key)
+	params = append(params, p...)
+	params = append(params, val)
+	return fmt.Sprintf(
+		"!FIND_IN_SET(JSON_UNQUOTE(JSON_EXTRACT(%s , %s)), ?)",
 		jsonAttr,
 		keySql,
 	), params
