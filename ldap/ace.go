@@ -157,6 +157,28 @@ func AceFlagsToFullStr(flags AceFlags) string {
 	return strings.Join(tmpArr, ",")
 }
 
+func GetInheritanceFlags(flags AceFlags) string {
+	result := "None"
+	arr := []AceFlags{CONTAINER_INHERIT_ACE, OBJECT_INHERIT_ACE}
+	for _, key := range arr {
+		if key&flags == key {
+			result = fmt.Sprintf("%s(0x%02x)", AceFlagsFullMap[key], key)
+		}
+	}
+	return result
+}
+
+func GetPropagationFlags(flags AceFlags) string {
+	result := "None"
+	arr := []AceFlags{NO_PROPAGATE_INHERIT_ACE, INHERIT_ONLY_ACE}
+	for _, key := range arr {
+		if key&flags == key {
+			result = fmt.Sprintf("%s(0x%02x)", AceFlagsFullMap[key], key)
+		}
+	}
+	return result
+}
+
 type AceMask uint32
 
 const (
