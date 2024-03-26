@@ -8,7 +8,7 @@ import (
 )
 
 type Executor struct {
-	FnMap map[string]map[token.Token]conditionFn
+	FnMap map[string]map[token.Token]ConditionFn
 
 	// KeyMap 字段映射
 	// 	存在映射 => key 转换为映射值
@@ -17,7 +17,7 @@ type Executor struct {
 
 var StdExecutor = New(nil, nil)
 
-func New(fnMap map[string]map[token.Token]conditionFn, keyMap map[string]string) *Executor {
+func New(fnMap map[string]map[token.Token]ConditionFn, keyMap map[string]string) *Executor {
 	if fnMap == nil {
 		fnMap = DefaultFnMap
 	}

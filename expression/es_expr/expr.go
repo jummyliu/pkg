@@ -8,12 +8,12 @@ import (
 )
 
 type Executor struct {
-	FnMap map[string]map[token.Token]conditionFn
+	FnMap map[string]map[token.Token]ConditionFn
 }
 
 var StdExecutor = New(nil)
 
-func New(fnMap map[string]map[token.Token]conditionFn) *Executor {
+func New(fnMap map[string]map[token.Token]ConditionFn) *Executor {
 	if fnMap == nil {
 		fnMap = DefaultFnMap
 	}

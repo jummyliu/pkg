@@ -7,9 +7,9 @@ import (
 	"github.com/jummyliu/pkg/number"
 )
 
-type conditionFn func(key string, value any) (sqls string, params []any)
+type ConditionFn func(key string, value any) (sqls string, params []any)
 
-var DefaultFnMap = map[string]map[token.Token]conditionFn{
+var DefaultFnMap = map[string]map[token.Token]ConditionFn{
 	"==": {
 		token.NUM:    equal[float64],
 		token.BOOL:   equal[bool],

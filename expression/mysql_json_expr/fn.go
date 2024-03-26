@@ -22,9 +22,9 @@ func buildKey(key string) (sql string, params []any) {
 	return fmt.Sprintf("CONCAT('$.', %s, '')", strings.Join(arr, ", '.', ")), params
 }
 
-type conditionFn func(key string, value any, jsonAttr string) (sqls string, params []any)
+type ConditionFn func(key string, value any, jsonAttr string) (sqls string, params []any)
 
-var DefaultFnMap = map[string]map[token.Token]conditionFn{
+var DefaultFnMap = map[string]map[token.Token]ConditionFn{
 	"==": {
 		token.NUM:    equal[float64],
 		token.BOOL:   equal[bool],

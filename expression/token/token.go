@@ -9,7 +9,7 @@ var (
 	REG_LBT       = regexp.MustCompile(`^([(\[{])`)
 	REG_RBT       = regexp.MustCompile(`^([)\]}])`)
 	REG_OPERATOR  = regexp.MustCompile(`^(&&|\|\|)`)
-	REG_CONDITION = regexp.MustCompile(`^(?:(==|!=|>=|<=|>|<|containsBit|unContainsBit|contains|unContains|startsWith|unStartsWith|endsWith|unEndsWith|reg|notIn|in)\s*)`)
+	REG_CONDITION = regexp.MustCompile(`^(?:(==|!=|>=|<=|>|<|containsBit|unContainsBit|contains|unContains|startsWith|unStartsWith|endsWith|unEndsWith|reg|notIn|in|isNot|is)\s*)`)
 	REG_IDENT     = regexp.MustCompile(`^([a-zA-Z_][\w\\.\-]*)`)
 	REG_NUM       = regexp.MustCompile(`^((?:\+|-)?\d+(?:\.\d+)?)`)
 	REG_BOOL      = regexp.MustCompile(`^(true|false)`)

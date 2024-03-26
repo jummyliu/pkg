@@ -7,9 +7,9 @@ import (
 	"github.com/jummyliu/pkg/expression/token"
 )
 
-type conditionFn func(key string, value any) map[string]any
+type ConditionFn func(key string, value any) map[string]any
 
-var DefaultFnMap = map[string]map[token.Token]conditionFn{
+var DefaultFnMap = map[string]map[token.Token]ConditionFn{
 	"==": {
 		token.NUM:    equal[float64],
 		token.BOOL:   equal[bool],

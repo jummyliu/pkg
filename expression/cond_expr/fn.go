@@ -26,9 +26,9 @@ func typeCheck[T comparable](m map[string]any, key string, value any) (val T, ok
 	return vNew, true
 }
 
-type conditionFn func(m map[string]any, key string, value any) bool
+type ConditionFn func(m map[string]any, key string, value any) bool
 
-var DefaultFnMap = map[string]map[token.Token]conditionFn{
+var DefaultFnMap = map[string]map[token.Token]ConditionFn{
 	"==": {
 		token.NUM:    equal[float64],
 		token.BOOL:   equal[bool],
