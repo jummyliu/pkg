@@ -15,7 +15,7 @@ import (
 //	 -----------------------------------------------
 type AceHeader struct {
 	AceType  byte   `json:"aceType"`
-	AceFlags byte   `json:"-"`
+	AceFlags byte   `json:"aceFlags"`
 	AceSize  uint16 `json:"-"` // LittleEndian
 }
 
@@ -127,6 +127,16 @@ var AceFlagsMap = map[AceFlags]string{
 	FAILED_ACCESS_ACE_FLAG:     "FA",
 }
 
+var AceFlagsFullMap = map[AceFlags]string{
+	OBJECT_INHERIT_ACE:         "OBJECT INHERIT",
+	CONTAINER_INHERIT_ACE:      "CONTAINER INHERIT",
+	NO_PROPAGATE_INHERIT_ACE:   "NO PROPAGATE INHERIT",
+	INHERIT_ONLY_ACE:           "INHERIT ONLY",
+	INHERITED_ACE:              "INHERITED",
+	SUCCESSFUL_ACCESS_ACE_FLAG: "SUCCESSFUL ACCESS ACE FLAG",
+	FAILED_ACCESS_ACE_FLAG:     "FAILED ACCESS ACE FLAG",
+}
+
 func AceFlagsToStr(flags AceFlags) string {
 	var tmpArr = []string{}
 	for key, val := range AceFlagsMap {
@@ -139,7 +149,7 @@ func AceFlagsToStr(flags AceFlags) string {
 
 func AceFlagsToFullStr(flags AceFlags) string {
 	var tmpArr = []string{}
-	for key, val := range AceFlagsMap {
+	for key, val := range AceFlagsFullMap {
 		if key&flags == key {
 			tmpArr = append(tmpArr, fmt.Sprintf("%s(0x%02x)", val, key))
 		}
