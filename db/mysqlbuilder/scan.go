@@ -108,7 +108,8 @@ func (db *DBConnect) SelectOne(ctx context.Context, dest any, query string, args
 }
 
 // SelectMany 查询总数并返回指定数据
-// 	返回的字段名，不能有预处理的参数
+//
+//	返回的字段名，不能有预处理的参数
 func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, args ...any) (count int64, err error) {
 	countStruct := Count{}
 	countArgs := args[:]
@@ -132,7 +133,7 @@ func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, arg
 
 var (
 	RegCount = regexp.MustCompile("(?is)^(SELECT).*?(FROM)")
-	RegLimit = regexp.MustCompile(`(?is)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
+	RegLimit = regexp.MustCompile(`(?is)(ORDER BY \S+(\s+(ASC|DESC))?\s+)?LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
 )
 
 // SelectAll 返回所有数据，如果最后有 limit 会删除

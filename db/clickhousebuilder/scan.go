@@ -53,7 +53,7 @@ func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, arg
 
 var (
 	RegCount = regexp.MustCompile("(?is)^(SELECT).*?(FROM)")
-	RegLimit = regexp.MustCompile(`(?is)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
+	RegLimit = regexp.MustCompile(`(?is)(ORDER BY \S+(\s+(ASC|DESC))?\s+)?LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
 )
 
 // SelectAll 返回所有数据，如果最后有 limit 会删除

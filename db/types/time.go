@@ -38,6 +38,8 @@ func (t *Time) Scan(src any) error {
 		*t = Time(datetime.ParseDate(src))
 	case []byte:
 		*t = Time(datetime.ParseDate(string(src)))
+	case time.Time:
+		*t = Time(src)
 	default:
 		return errors.New("try scan to JSONTime failure")
 	}
