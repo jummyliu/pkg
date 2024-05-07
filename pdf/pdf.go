@@ -3,6 +3,7 @@ package pdf
 
 import (
 	"context"
+	"time"
 
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
@@ -29,8 +30,16 @@ func printToPDFWithURL(url string, res *[]byte, actions ...chromedp.Action) chro
 				action.Do(ctx)
 			}
 			header, footer := "", ""
-			chromedp.InnerHTML("#page_header", &header, chromedp.ByQuery).Do(ctx)
-			chromedp.InnerHTML("#page_footer", &footer, chromedp.ByQuery).Do(ctx)
+			headerCtx, _ := context.WithTimeout(ctx, time.Second*5)
+			chromedp.InnerHTML("#page_header", &header, chromedp.ByQuery).Do(headerCtx)
+			footerCtx, _ := context.WithTimeout(ctx, time.Second*5)
+			chromedp.InnerHTML("#page_footer", &footer, chromedp.ByQuery).Do(footerCtx)
+			if len(header) == 0 {
+				header = "<body></body>"
+			}
+			if len(footer) == 0 {
+				footer = "<body></body>"
+			}
 			buf, _, err := page.PrintToPDF().
 				WithPrintBackground(true).
 				WithDisplayHeaderFooter(true).
@@ -80,8 +89,16 @@ func printToPDFWithHTML(html string, res *[]byte, actions ...chromedp.Action) ch
 				action.Do(ctx)
 			}
 			header, footer := "", ""
-			chromedp.InnerHTML("#page_header", &header, chromedp.ByQuery).Do(ctx)
-			chromedp.InnerHTML("#page_footer", &footer, chromedp.ByQuery).Do(ctx)
+			headerCtx, _ := context.WithTimeout(ctx, time.Second*5)
+			chromedp.InnerHTML("#page_header", &header, chromedp.ByQuery).Do(headerCtx)
+			footerCtx, _ := context.WithTimeout(ctx, time.Second*5)
+			chromedp.InnerHTML("#page_footer", &footer, chromedp.ByQuery).Do(footerCtx)
+			if len(header) == 0 {
+				header = "<body></body>"
+			}
+			if len(footer) == 0 {
+				footer = "<body></body>"
+			}
 			buf, _, err := page.PrintToPDF().
 				WithPrintBackground(true).
 				WithDisplayHeaderFooter(true).
