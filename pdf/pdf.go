@@ -23,7 +23,7 @@ func PrintToPDFWithURL(ctx context.Context, url string, actions ...chromedp.Acti
 
 func printToPDFWithURL(url string, res *[]byte, actions ...chromedp.Action) chromedp.Tasks {
 	return chromedp.Tasks{
-		chromedp.Navigate("url"),
+		chromedp.Navigate(url),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			// 如果有前置行为，先执行
 			for _, action := range actions {
