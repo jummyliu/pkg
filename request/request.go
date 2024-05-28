@@ -25,6 +25,7 @@ type Options struct {
 	ctx     context.Context
 	client  *http.Client
 	proxy   func(*http.Request) (*url.URL, error)
+	http2   bool
 }
 
 // Option request option
@@ -134,6 +135,13 @@ func WithProxyFn(fn func(*http.Request) (*url.URL, error)) Option {
 	}
 }
 
+// WithSSL set request skip ssl verify.
+func WithHTTP2(http2 bool) Option {
+	return func(opts *Options) {
+		opts.http2 = http2
+	}
+}
+
 // DoRequest exec https? request and return []byte
 func DoRequest(url string, options ...Option) (code int, respBuf []byte, respHeader map[string][]string, err error) {
 	// exec the undercourse request
@@ -174,25 +182,29 @@ func DoRequestUndercourse(url string, options ...Option) (resp *http.Response, e
 	}
 	client := opts.client
 	if opts.client == nil {
-		transport := &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: opts.ssl,
-			},
-			DisableKeepAlives: true,
-			Proxy:             opts.proxy,
-		}
-		// upgrade to http2
-		http2.ConfigureTransport(transport)
-		client = &http.Client{
-			Transport: transport,
-			Timeout:   time.Duration(opts.timeout) * time.Second,
-			// CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			// 	return http.ErrUseLastResponse
-			// },
-		}
+		client = NewHttpClient(opts)
 	}
 	// client = apmhttp.WrapClient(client)
 	// resp, err = client.Do(req.WithContext(ctx))
 	resp, err = client.Do(req.WithContext(opts.ctx))
 	return resp, err
+}
+
+// 生成HttpClient对象
+func NewHttpClient(opts *Options) (client_http *http.Client) {
+	tr := &http.Transport{
+		Proxy:             opts.proxy,
+		TLSClientConfig:   &tls.Config{InsecureSkipVerify: opts.ssl},
+		DisableKeepAlives: true,
+	}
+
+	if opts.http2 {
+		http2.ConfigureTransport(tr)
+	}
+
+	client_http = &http.Client{
+		Transport: tr,
+		Timeout:   time.Duration(opts.timeout) * time.Second,
+	}
+	return
 }
