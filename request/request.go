@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	// "go.elastic.co/apm"
@@ -18,14 +19,15 @@ import (
 // Options request options
 type Options struct {
 	method  string
+	params  map[string]string
 	data    []byte
 	headers map[string]string
 	timeout int
 	ssl     bool
+	http2   bool
 	ctx     context.Context
 	client  *http.Client
 	proxy   func(*http.Request) (*url.URL, error)
-	http2   bool
 }
 
 // Option request option
@@ -34,9 +36,12 @@ type Option func(*Options)
 func initOptions(options ...Option) *Options {
 	opts := &Options{
 		method:  http.MethodGet,
-		timeout: 15,
+		params:  map[string]string{},
+		data:    []byte{},
 		headers: map[string]string{"Content-Type": "application/json; charset=UTF-8"},
+		timeout: 15,
 		ssl:     true,
+		http2:   false,
 		ctx:     context.Background(),
 	}
 	for _, option := range options {
@@ -56,6 +61,13 @@ func WithOptions(options Options) Option {
 func WithMethod(method string) Option {
 	return func(opts *Options) {
 		opts.method = method
+	}
+}
+
+// WithParams set request url params.
+func WithParams(params map[string]string) Option {
+	return func(opts *Options) {
+		opts.params = params
 	}
 }
 
@@ -143,9 +155,9 @@ func WithHTTP2(http2 bool) Option {
 }
 
 // DoRequest exec https? request and return []byte
-func DoRequest(url string, options ...Option) (code int, respBuf []byte, respHeader map[string][]string, err error) {
+func DoRequest(request_url string, options ...Option) (code int, respBuf []byte, respHeader map[string][]string, err error) {
 	// exec the undercourse request
-	resp, err := DoRequestUndercourse(url, options...)
+	resp, err := DoRequestUndercourse(request_url, options...)
 	if err != nil {
 		// 错误
 		return -1, nil, nil, errors.New("response failure")
@@ -160,18 +172,38 @@ func DoRequest(url string, options ...Option) (code int, respBuf []byte, respHea
 }
 
 // DoRequestUndercourse exec https? request and return response
-func DoRequestUndercourse(url string, options ...Option) (resp *http.Response, err error) {
+func DoRequestUndercourse(request_url string, options ...Option) (resp *http.Response, err error) {
 	opts := initOptions(options...)
 	// span, ctx := apm.StartSpan(opts.ctx, "dorequest", "custom")
 	// defer span.End()
 
 	var req *http.Request
-	req, err = http.NewRequest(opts.method, url, bytes.NewBuffer(opts.data))
+
+	if len(opts.params) != 0 {
+		// 当附带请求参数时,判断是否以?结尾
+		if !strings.HasSuffix(request_url, "?") {
+			// 若末尾不为?且已包含?则自动拼接&,类似url=/api/test?query=aaaa
+			if strings.Contains(request_url, "?") {
+				request_url = request_url + "&"
+				// 若末尾不为?且不包含?则自动拼接?,类似url=/api/test
+			} else {
+				request_url = request_url + "?"
+			}
+		}
+		url_values := url.Values{}
+		for key, val := range opts.params {
+			url_values.Add(key, val)
+		}
+		// url后拼接urlencode的参数
+		request_url = request_url + url_values.Encode()
+	}
+
+	req, err = http.NewRequest(opts.method, request_url, bytes.NewBuffer(opts.data))
 	// switch opts.method {
 	// case http.MethodPost, http.MethodPut:
-	// 	req, err = http.NewRequest(opts.method, url, bytes.NewBuffer(opts.data))
+	// 	req, err = http.NewRequest(opts.method, request_url, bytes.NewBuffer(opts.data))
 	// default:
-	// 	req, err = http.NewRequest(opts.method, url, nil)
+	// 	req, err = http.NewRequest(opts.method, request_url, nil)
 	// }
 	if err != nil {
 		return nil, errors.New("build request failure")
