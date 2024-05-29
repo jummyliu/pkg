@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	// "go.elastic.co/apm"
@@ -179,9 +180,15 @@ func DoRequestUndercourse(request_url string, options ...Option) (resp *http.Res
 	var req *http.Request
 
 	if len(opts.params) != 0 {
-		// 当附带请求参数时,若末尾不为?则自动拼接?
-		if request_url[len(request_url)-1:] != "?" {
-			request_url = request_url + "?"
+		// 当附带请求参数时,判断是否以?结尾
+		if !strings.HasSuffix(request_url, "?") {
+			// 若末尾不为?且已包含?则自动拼接&,类似url=/api/test?query=aaaa
+			if strings.Contains(request_url, "?") {
+				request_url = request_url + "&"
+				// 若末尾不为?且不包含?则自动拼接?,类似url=/api/test
+			} else {
+				request_url = request_url + "?"
+			}
 		}
 		url_values := url.Values{}
 		for key, val := range opts.params {
