@@ -61,7 +61,7 @@ func ParseInt[T intnumber](val any) (result T) {
 		result = 0
 	}
 	if len(str) > 0 {
-		tmp, err := strconv.ParseInt(str, 10, 64)
+		tmp, err := strconv.ParseInt(str, 0, 64)
 		if err != nil {
 			tmp = 0
 		}
