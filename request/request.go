@@ -43,6 +43,8 @@ func initOptions(options ...Option) *Options {
 		ssl:     true,
 		http2:   false,
 		ctx:     context.Background(),
+		client:  nil,
+		proxy:   nil,
 	}
 	for _, option := range options {
 		option(opts)
@@ -126,9 +128,11 @@ func WithClient(client *http.Client) Option {
 // If Proxy is nil or returns a nil *URL, no proxy is used.
 func WithProxy(proxy string) Option {
 	return func(opts *Options) {
-		opts.proxy = func(r *http.Request) (*url.URL, error) {
-			return url.Parse(proxy)
+		if proxy == "" {
+			return
 		}
+		proxy_url, _ := url.Parse(proxy)
+		opts.proxy = http.ProxyURL(proxy_url)
 	}
 }
 
