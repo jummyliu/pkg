@@ -129,6 +129,7 @@ func WithClient(client *http.Client) Option {
 func WithProxy(proxy string) Option {
 	return func(opts *Options) {
 		if proxy == "" {
+			opts.proxy = nil
 			return
 		}
 		proxy_url, _ := url.Parse(proxy)
