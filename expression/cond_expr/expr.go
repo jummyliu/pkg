@@ -13,6 +13,8 @@ type Executor struct {
 	// KeyMap 字段映射
 	// 	存在映射 => key 转换为映射值
 	KeyMap map[string]string
+
+	NeedKeys bool
 }
 
 var StdExecutor = New(nil, nil)
@@ -24,6 +26,7 @@ func New(fnMap map[string]map[token.Token]ConditionFn, keyMap map[string]string)
 	return &Executor{
 		FnMap:  fnMap,
 		KeyMap: keyMap,
+		// NeedKeys: true,
 	}
 }
 
@@ -105,7 +108,10 @@ func (e *Executor) DoTerm(m map[string]any, term *expression.AstNode, prefix, su
 	if len(suffix) > 0 {
 		key = fmt.Sprintf("%s.%s", key, suffix)
 	}
-	return fn(m, key, term.Right.Value), []string{key}
+	if e.NeedKeys {
+		return fn(m, key, term.Right.Value), []string{key}
+	}
+	return fn(m, key, term.Right.Value), nil
 }
 
 func OperatorAnd(left, right bool) bool {
