@@ -114,11 +114,11 @@ func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, arg
 	countStruct := Count{}
 	countArgs := args[:]
 	countSql := RegCount.ReplaceAllString(query, "${1} COUNT(1) count ${2}")
-	hasLimit := RegLimit.FindAllString(countSql, -1)
+	hasLimit := RegOrderLimit.FindAllString(countSql, -1)
 	if len(hasLimit) != 0 && len(hasLimit[0]) != 0 {
 		l := strings.Count(hasLimit[0], "?")
 		countArgs = countArgs[0 : len(countArgs)-l]
-		countSql = RegLimit.ReplaceAllString(countSql, "")
+		countSql = RegOrderLimit.ReplaceAllString(countSql, "")
 	}
 	err = db.SelectOne(ctx, &countStruct, countSql, countArgs...)
 	if err != nil {
@@ -132,8 +132,9 @@ func (db *DBConnect) SelectMany(ctx context.Context, dest any, query string, arg
 }
 
 var (
-	RegCount = regexp.MustCompile("(?is)^(SELECT).*?(FROM)")
-	RegLimit = regexp.MustCompile(`(?is)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
+	RegCount      = regexp.MustCompile("(?is)^(SELECT).*?(FROM)")
+	RegLimit      = regexp.MustCompile(`(?is)LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
+	RegOrderLimit = regexp.MustCompile(`(?is)(ORDER BY \S+(\s+(ASC|DESC))?\s+)?LIMIT\s+(\d+|\?)(?:\s*,\s*(\d+|\?))*\s*$`)
 )
 
 // SelectAll 返回所有数据，如果最后有 limit 会删除
