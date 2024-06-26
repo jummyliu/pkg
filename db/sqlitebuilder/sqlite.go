@@ -1,4 +1,4 @@
-package mysqlbuilder
+package sqlitebuilder
 
 import (
 	"context"
