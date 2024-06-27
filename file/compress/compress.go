@@ -17,15 +17,15 @@ func ZipBuffer(password string, fileItems ...FileItem) (*bytes.Buffer, error) {
 	writer := zip.NewWriter(out)
 	defer writer.Close()
 	for _, item := range fileItems {
-		var (
-			err error
-			w   io.Writer
-		)
-		if len(password) > 0 {
-			w, err = writer.Encrypt(item.FileName, password)
-		} else {
-			w, err = writer.Create(item.FileName)
+		header := &zip.FileHeader{
+			Name:   item.FileName,
+			Flags:  1 << 11, // 指定 utf-8 编码
+			Method: zip.Deflate,
 		}
+		if len(password) > 0 {
+			header.SetPassword(password)
+		}
+		w, err := writer.CreateHeader(header)
 		if err != nil {
 			return nil, err
 		}
