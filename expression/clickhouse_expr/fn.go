@@ -69,7 +69,7 @@ var DefaultFnMap = map[string]map[token.Token]ConditionFn{
 	},
 	"unContainsBit": {
 		token.NUM:    unContainsBit,
-		token.STRING: containsBitStr,
+		token.STRING: unContainsBitStr,
 	},
 	"&": {},
 	"|": {},
@@ -128,7 +128,7 @@ func contains(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("%s LIKE CONCAT('%%', ?, '%%')", key), []any{val}
+	return fmt.Sprintf("%s ILIKE CONCAT('%%', ?, '%%')", key), []any{val}
 }
 
 func unContains(key string, value any) (sql string, params []any) {
@@ -136,7 +136,7 @@ func unContains(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("%s NOT LIKE CONCAT('%%', ?, '%%')", key), []any{val}
+	return fmt.Sprintf("%s NOT ILIKE CONCAT('%%', ?, '%%')", key), []any{val}
 }
 
 func startsWith(key string, value any) (sql string, params []any) {
@@ -144,7 +144,7 @@ func startsWith(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("%s LIKE CONCAT(?, '%%')", key), []any{val}
+	return fmt.Sprintf("%s ILIKE CONCAT(?, '%%')", key), []any{val}
 }
 
 func unStartsWith(key string, value any) (sql string, params []any) {
@@ -152,7 +152,7 @@ func unStartsWith(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("%s NOT LIKE CONCAT(?, '%%')", key), []any{val}
+	return fmt.Sprintf("%s NOT ILIKE CONCAT(?, '%%')", key), []any{val}
 }
 
 func endsWith(key string, value any) (sql string, params []any) {
@@ -160,7 +160,7 @@ func endsWith(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("%s LIKE CONCAT('%%', ?)", key), []any{val}
+	return fmt.Sprintf("%s ILIKE CONCAT('%%', ?)", key), []any{val}
 }
 
 func unEndsWith(key string, value any) (sql string, params []any) {
@@ -168,7 +168,7 @@ func unEndsWith(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("%s NOT LIKE CONCAT('%%', ?)", key), []any{val}
+	return fmt.Sprintf("%s NOT ILIKE CONCAT('%%', ?)", key), []any{val}
 }
 
 func reg(key string, value any) (sql string, params []any) {
