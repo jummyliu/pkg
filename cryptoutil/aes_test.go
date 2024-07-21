@@ -44,7 +44,7 @@ func TestSaveAES(t *testing.T) {
 	t.Log(string(priData))
 
 	newKey, unknowKey := pem.Decode(priData)
-	if len(unknowKey) > 0 {
+	if len(unknowKey) > 0 || newKey == nil {
 		t.Fatalf("Decode pem unknow key failure: %#v", unknowKey)
 	}
 	if !bytes.Equal(key, newKey.Bytes) {

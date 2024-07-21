@@ -83,7 +83,7 @@ func RSADecryptPKCS1v15(data, priKey []byte) ([]byte, error) {
 //	PKCS1v15
 func RSAEncryptPKCS1v15PEM(data, pubKey []byte) ([]byte, error) {
 	key, rest := pem.Decode(pubKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return nil, errors.New("invalid public key")
 	}
 	return RSAEncryptPKCS1v15(data, key.Bytes)
@@ -94,7 +94,7 @@ func RSAEncryptPKCS1v15PEM(data, pubKey []byte) ([]byte, error) {
 //	PKCS1v15
 func RSADecryptPKCS1v15PEM(data, priKey []byte) ([]byte, error) {
 	key, rest := pem.Decode(priKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return nil, errors.New("invalid private key")
 	}
 	return RSADecryptPKCS1v15(data, key.Bytes)
@@ -147,7 +147,7 @@ func RSAVerifyPKCS1v15(data []byte, signStr string, pubKey []byte) error {
 // RSASignPKCS1v15PEM 使用 rsa 私钥签名（PKCS1v15），接收PEM格式的私钥
 func RSASignPKCS1v15PEM(data, priKey []byte) (string, error) {
 	key, rest := pem.Decode(priKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return "", errors.New("invalid private key")
 	}
 	return RSASignPKCS1v15(data, key.Bytes)
@@ -156,7 +156,7 @@ func RSASignPKCS1v15PEM(data, priKey []byte) (string, error) {
 // RSAVerifyPKCS1v15PEM 使用 rsa 公钥验签（PKCS1v15），接收PEM格式的公钥
 func RSAVerifyPKCS1v15PEM(data []byte, signStr string, pubKey []byte) error {
 	key, rest := pem.Decode(pubKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return errors.New("invalid public key")
 	}
 	return RSAVerifyPKCS1v15(data, signStr, key.Bytes)

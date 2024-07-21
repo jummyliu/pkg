@@ -115,7 +115,7 @@ func ECCVerify(data []byte, sigB64 string, pubKey []byte) error {
 // ECCSignPEM 使用 ecc 私钥签名，接收PEM格式的公钥
 func ECCSignPEM(data, priKey []byte) (string, error) {
 	key, rest := pem.Decode(priKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return "", errors.New("invalid ecc private key")
 	}
 	return ECCSign(data, key.Bytes)
@@ -124,7 +124,7 @@ func ECCSignPEM(data, priKey []byte) (string, error) {
 // ECCVerifyPEM 使用 ecc 公钥验签，接收PEM格式的公钥
 func ECCVerifyPEM(data []byte, signStr string, pubKey []byte) error {
 	key, rest := pem.Decode(pubKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return errors.New("invalid ecc public key")
 	}
 	return ECCVerify(data, signStr, key.Bytes)

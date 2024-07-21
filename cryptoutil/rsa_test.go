@@ -54,10 +54,10 @@ func TestSaveRSA(t *testing.T) {
 
 	newPriKey, unknowPri := pem.Decode(priData)
 	newPubKey, unknowPub := pem.Decode(pubData)
-	if len(unknowPri) > 0 {
+	if len(unknowPri) > 0 || newPriKey == nil {
 		t.Fatalf("Decode pem pri key failure: %#v", unknowPri)
 	}
-	if len(unknowPub) > 0 {
+	if len(unknowPub) > 0 || newPubKey == nil {
 		t.Fatalf("Decode pem pub key failure: %#v", unknowPub)
 	}
 

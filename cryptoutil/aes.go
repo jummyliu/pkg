@@ -70,7 +70,7 @@ func AESDecrypt(crypted, key []byte) ([]byte, error) {
 
 func AESEncryptPEM(data, key []byte) ([]byte, error) {
 	aeskey, rest := pem.Decode(key)
-	if len(rest) > 0 {
+	if len(rest) > 0 || aeskey == nil {
 		return nil, errors.New("invalid aes key")
 	}
 	return AESEncrypt(data, aeskey.Bytes)
@@ -78,7 +78,7 @@ func AESEncryptPEM(data, key []byte) ([]byte, error) {
 
 func AESDecryptPEM(data, key []byte) ([]byte, error) {
 	aeskey, rest := pem.Decode(key)
-	if len(rest) > 0 {
+	if len(rest) > 0 || aeskey == nil {
 		return nil, errors.New("invalid aes key")
 	}
 	return AESDecrypt(data, aeskey.Bytes)

@@ -112,7 +112,7 @@ func RSADecrypt(data, priKey []byte) ([]byte, error) {
 //	OAEP: sha256
 func RSAEncryptPEM(data, pubKey []byte) ([]byte, error) {
 	key, rest := pem.Decode(pubKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return nil, errors.New("invalid public key")
 	}
 	return RSAEncrypt(data, key.Bytes)
@@ -123,7 +123,7 @@ func RSAEncryptPEM(data, pubKey []byte) ([]byte, error) {
 //	OAEP: sha256
 func RSADecryptPEM(data, priKey []byte) ([]byte, error) {
 	key, rest := pem.Decode(priKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return nil, errors.New("invalid private key")
 	}
 	return RSADecrypt(data, key.Bytes)
@@ -177,7 +177,7 @@ func RSAVerifyPSS(data []byte, signStr string, pubKey []byte) error {
 // RSASignPSSPEM 使用 rsa 私钥签名（PSS），接收PEM格式的私钥
 func RSASignPSSPEM(data, priKey []byte) (string, error) {
 	key, rest := pem.Decode(priKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return "", errors.New("invalid private key")
 	}
 	return RSASignPSS(data, key.Bytes)
@@ -186,7 +186,7 @@ func RSASignPSSPEM(data, priKey []byte) (string, error) {
 // RSAVerifyPSSPEM 使用 rsa 公钥验签（PSS），接收PEM格式的公钥
 func RSAVerifyPSSPEM(data []byte, signStr string, pubKey []byte) error {
 	key, rest := pem.Decode(pubKey)
-	if len(rest) > 0 {
+	if len(rest) > 0 || key == nil {
 		return errors.New("invalid public key")
 	}
 	return RSAVerifyPSS(data, signStr, key.Bytes)
