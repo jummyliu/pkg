@@ -21,7 +21,7 @@ func GenerateAESKey() (key []byte) {
 func GeneratePEMAESKey() (key []byte) {
 	aesKey := GenerateAESKey()
 	key = pem.EncodeToMemory(&pem.Block{
-		Type:  "",
+		Type:  "AES KEY",
 		Bytes: aesKey,
 	})
 	return key
