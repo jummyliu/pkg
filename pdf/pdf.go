@@ -36,14 +36,14 @@ func printToPDFWithURL(url string, res *[]byte, actions ...chromedp.Action) chro
 			chromedp.InnerHTML("#page_footer", &footer, chromedp.ByQuery).Do(footerCtx)
 			if len(header) == 0 {
 				headerCtx, _ := context.WithTimeout(ctx, time.Second*5)
-				chromedp.InnerHTML("#page_header .page_header", &header, chromedp.ByQuery).Do(headerCtx)
+				chromedp.OuterHTML("#page_header .page_header", &header, chromedp.ByQuery).Do(headerCtx)
 			}
 			if len(header) == 0 {
 				header = "<body></body>"
 			}
 			if len(footer) == 0 {
 				footerCtx, _ := context.WithTimeout(ctx, time.Second*5)
-				chromedp.InnerHTML("#page_footer .page_footer", &footer, chromedp.ByQuery).Do(footerCtx)
+				chromedp.OuterHTML("#page_footer .page_footer", &footer, chromedp.ByQuery).Do(footerCtx)
 			}
 			if len(footer) == 0 {
 				footer = "<body></body>"
