@@ -56,3 +56,27 @@ func ParseDateWithLayout(val any, layout string) (result time.Time) {
 	}
 	return
 }
+
+// GetMonthRange 返回月开始（本月第一天零点）和月结束（下月第一天零点）
+//
+//	firstOfMonth <= date < lastOfMonth
+func GetMonthRange(date time.Time) (firstOfMonth, lastOfMonth time.Time) {
+	year, month, _ := date.Date()
+	firstOfMonth = time.Date(year, month, 1, 0, 0, 0, 0, date.Location())
+	lastOfMonth = firstOfMonth.AddDate(0, 1, 0)
+	return
+}
+
+// GetWeekRange firstDayOfWeek 用于指定每周的第一天，返回周开始（本周第一天零点）和周结束（下一周第一天零点）
+//
+//	firstOfWeek <= date < lastOfWeek
+func GetWeekRange(date time.Time, firstDayOfWeek time.Weekday) (firstOfWeek, lastOfWeek time.Time) {
+	year, month, day := date.Date()
+	step := firstDayOfWeek - date.Weekday()
+	if step > 0 {
+		step -= 7
+	}
+	firstOfWeek = time.Date(year, month, day+int(step), 0, 0, 0, 0, date.Location())
+	lastOfWeek = firstOfWeek.AddDate(0, 0, 7)
+	return
+}
