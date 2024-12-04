@@ -49,6 +49,9 @@ func AESEncrypt(data, key []byte) ([]byte, error) {
 	}
 	blockSize := block.BlockSize()
 	data = PKCS5Padding(data, blockSize)
+	if len(data)%blockSize != 0 {
+		return nil, errors.New("crypto/cipher: input not full blocks")
+	}
 	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize])
 	crypted := make([]byte, len(data))
 	blockMode.CryptBlocks(crypted, data)
@@ -61,6 +64,9 @@ func AESDecrypt(crypted, key []byte) ([]byte, error) {
 		return nil, err
 	}
 	blockSize := block.BlockSize()
+	if len(crypted)%blockSize != 0 {
+		return nil, errors.New("crypto/cipher: input not full blocks")
+	}
 	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
 	data := make([]byte, len(crypted))
 	blockMode.CryptBlocks(data, crypted)
