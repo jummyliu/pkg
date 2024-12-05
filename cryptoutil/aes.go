@@ -33,13 +33,16 @@ func PKCS5Padding(data []byte, blockSize int) []byte {
 	return append(data, padtext...)
 }
 
-func PKCS5UnPadding(data []byte) []byte {
+func PKCS5UnPadding(data []byte) ([]byte, error) {
 	length := len(data)
 	if length == 0 {
-		return data
+		return data, nil
 	}
 	unpadding := int(data[length-1])
-	return data[:length-unpadding]
+	if length-unpadding < 0 {
+		return nil, errors.New("pkcs5/unpadding failure: length - unpadding < 0")
+	}
+	return data[:length-unpadding], nil
 }
 
 func AESEncrypt(data, key []byte) ([]byte, error) {
@@ -70,8 +73,8 @@ func AESDecrypt(crypted, key []byte) ([]byte, error) {
 	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
 	data := make([]byte, len(crypted))
 	blockMode.CryptBlocks(data, crypted)
-	data = PKCS5UnPadding(data)
-	return data, nil
+	data, err = PKCS5UnPadding(data)
+	return data, err
 }
 
 func AESEncryptPEM(data, key []byte) ([]byte, error) {
