@@ -65,10 +65,11 @@ func (c *Client) run() {
 			}
 		case <-timer.C:
 			if c.open {
+				// 超时了，就先重置连接
+				c.open = false
 				if err := c.sendCloser.Close(); err != nil {
 					continue
 				}
-				c.open = false
 			}
 		}
 	}
