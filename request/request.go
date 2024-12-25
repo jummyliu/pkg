@@ -18,16 +18,17 @@ import (
 
 // Options request options
 type Options struct {
-	method  string
-	params  map[string]string
-	data    []byte
-	headers map[string]string
-	timeout int
-	ssl     bool
-	http2   bool
-	ctx     context.Context
-	client  *http.Client
-	proxy   func(*http.Request) (*url.URL, error)
+	method   string
+	params   map[string]string
+	data     []byte
+	headers  map[string]string
+	timeout  int
+	ssl      bool
+	http2    bool
+	ctx      context.Context
+	client   *http.Client
+	proxy    func(*http.Request) (*url.URL, error)
+	redirect func(*http.Request, []*http.Request) error
 }
 
 // Option request option
@@ -35,16 +36,17 @@ type Option func(*Options)
 
 func initOptions(options ...Option) *Options {
 	opts := &Options{
-		method:  http.MethodGet,
-		params:  map[string]string{},
-		data:    []byte{},
-		headers: map[string]string{"Content-Type": "application/json; charset=UTF-8"},
-		timeout: 15,
-		ssl:     true,
-		http2:   false,
-		ctx:     context.Background(),
-		client:  nil,
-		proxy:   nil,
+		method:   http.MethodGet,
+		params:   map[string]string{},
+		data:     []byte{},
+		headers:  map[string]string{"Content-Type": "application/json; charset=UTF-8"},
+		timeout:  15,
+		ssl:      true,
+		http2:    false,
+		ctx:      context.Background(),
+		client:   nil,
+		proxy:    nil,
+		redirect: nil,
 	}
 	for _, option := range options {
 		option(opts)
@@ -152,10 +154,25 @@ func WithProxyFn(fn func(*http.Request) (*url.URL, error)) Option {
 	}
 }
 
-// WithSSL set request skip ssl verify.
+// WithHTTP2 配置是否开启 HTTP2
 func WithHTTP2(http2 bool) Option {
 	return func(opts *Options) {
 		opts.http2 = http2
+	}
+}
+
+// WithRedirect 配置最大允许跳转的次数，并返回最近的一个response
+func WithRedirect(max_redirect_times int) Option {
+	if max_redirect_times < 0 {
+		return func(opts *Options) {}
+	}
+	return func(opts *Options) {
+		opts.redirect = func(req *http.Request, via []*http.Request) error {
+			if len(via) > max_redirect_times {
+				return http.ErrUseLastResponse
+			}
+			return nil
+		}
 	}
 }
 
@@ -240,8 +257,9 @@ func NewHttpClient(opts *Options) (client_http *http.Client) {
 	}
 
 	client_http = &http.Client{
-		Transport: tr,
-		Timeout:   time.Duration(opts.timeout) * time.Second,
+		Transport:     tr,
+		Timeout:       time.Duration(opts.timeout) * time.Second,
+		CheckRedirect: opts.redirect,
 	}
 	return
 }
