@@ -184,7 +184,7 @@ func in(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("has(splitByChar(',', ?), `%s`) = 1", key), []any{val}
+	return fmt.Sprintf("has(splitByChar(',', ?), toString(`%s`)) = 1", key), []any{val}
 }
 
 func notIn(key string, value any) (sql string, params []any) {
@@ -192,7 +192,7 @@ func notIn(key string, value any) (sql string, params []any) {
 	if !ok {
 		return "", nil
 	}
-	return fmt.Sprintf("has(splitByChar(',', ?), `%s`) != 1", key), []any{val}
+	return fmt.Sprintf("has(splitByChar(',', ?), toString(`%s`)) != 1", key), []any{val}
 }
 
 // containsBit 位运算不进行类型判断，直接转成 int64
