@@ -8,12 +8,24 @@ import (
 	"strings"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 // UUID 封装获取 uuid 的函数
 func UUID() string {
-	return uuid.NewV4().String()
+	return UUIDv4()
+}
+
+// UUIDv4 获取一个随机的 UUIDv4 字符串
+func UUIDv4() string {
+	id, _ := uuid.NewRandom()
+	return id.String()
+}
+
+// UUIDv7 获取一个随机的 UUIDv7 字符串
+func UUIDv7() string {
+	id, _ := uuid.NewV7()
+	return id.String()
 }
 
 // RandomStr 随机字符串，包含大小写字母、数字、一般字符
@@ -52,9 +64,12 @@ func GetExecutablePath() string {
 	if err != nil {
 		return ""
 	}
-	// 通过判断是否在临时目录，区分 go run 和 go build
+	// 通过判断是否在全局临时目录，区分 go run 和 go build
 	if !strings.HasPrefix(file, os.TempDir()) {
-		return filepath.Dir(file)
+		// 通过判断是否在用户临时目录
+		if tmp, err := os.UserCacheDir(); err != nil || !strings.HasPrefix(file, tmp) {
+			return filepath.Dir(file)
+		}
 	}
 	// 返回上一级调用者的地址
 	_, file, _, ok := runtime.Caller(1)

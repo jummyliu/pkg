@@ -15,6 +15,24 @@ func TestUUID(t *testing.T) {
 	}
 }
 
+func TestUUIDv4(t *testing.T) {
+	str := UUIDv4()
+	expectVal := 36
+	actualVal := len(str)
+	if expectVal != actualVal {
+		t.Fatalf("UUIDv4's len need %d but got %d", expectVal, actualVal)
+	}
+}
+
+func TestUUIDv7(t *testing.T) {
+	str := UUIDv7()
+	expectVal := 36
+	actualVal := len(str)
+	if expectVal != actualVal {
+		t.Fatalf("UUIDv7's len need %d but got %d", expectVal, actualVal)
+	}
+}
+
 func TestExecutablePath(t *testing.T) {
 	_, file, _, _ := runtime.Caller(0)
 	expectVal := filepath.Dir(file)

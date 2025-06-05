@@ -17,7 +17,6 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/google/uuid v1.6.0
 	github.com/papertrail/remote_syslog2 v0.0.0-20221025131630-3efcaf211ef4
-	github.com/satori/go.uuid v1.2.0
 	github.com/segmentio/kafka-go v0.4.38
 	go.mongodb.org/mongo-driver v1.11.4
 	golang.org/x/net v0.22.0
