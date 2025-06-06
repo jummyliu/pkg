@@ -13,7 +13,7 @@ import (
 
 // UUID 封装获取 uuid 的函数
 func UUID() string {
-	return UUIDv4()
+	return UUIDv7()
 }
 
 // UUIDv4 获取一个随机的 UUIDv4 字符串
