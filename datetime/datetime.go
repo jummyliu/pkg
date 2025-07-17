@@ -57,6 +57,16 @@ func ParseDateWithLayout(val any, layout string) (result time.Time) {
 	return
 }
 
+// GetYearRange 返回年开始（本年第一天零点）和年结束（下年第一天零点）
+//
+//	firstOfYear <= date < lastOfYear
+func GetYearRange(date time.Time) (firstOfYear, lastOfYear time.Time) {
+	year, _, _ := date.Date()
+	firstOfYear = time.Date(year, 1, 1, 0, 0, 0, 0, date.Location())
+	lastOfYear = firstOfYear.AddDate(1, 0, 0)
+	return
+}
+
 // GetMonthRange 返回月开始（本月第一天零点）和月结束（下月第一天零点）
 //
 //	firstOfMonth <= date < lastOfMonth
@@ -78,5 +88,15 @@ func GetWeekRange(date time.Time, firstDayOfWeek time.Weekday) (firstOfWeek, las
 	}
 	firstOfWeek = time.Date(year, month, day+int(step), 0, 0, 0, 0, date.Location())
 	lastOfWeek = firstOfWeek.AddDate(0, 0, 7)
+	return
+}
+
+// GetDayRange 返回日开始（当天零点）和日结束（次日零点）
+//
+// firstOfDay <= date < lastOfDay
+func GetDayRange(date time.Time) (firstOfDay, lastOfDay time.Time) {
+	year, month, day := date.Date()
+	firstOfDay = time.Date(year, month, day, 0, 0, 0, 0, date.Location())
+	lastOfDay = firstOfDay.AddDate(0, 0, 1)
 	return
 }

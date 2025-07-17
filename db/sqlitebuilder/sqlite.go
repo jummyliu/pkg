@@ -2,15 +2,23 @@ package sqlitebuilder
 
 import (
 	"context"
+	"crypto/sha1"
 	"database/sql"
+	"database/sql/driver"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
+	"strings"
 	"sync"
 
 	// mysql driver
+	"github.com/google/uuid"
 	"github.com/jummyliu/pkg/utils"
-	_ "modernc.org/sqlite"
+	"modernc.org/sqlite"
 )
 
 type contextKey string
@@ -23,9 +31,104 @@ type DBConnect struct {
 	cacheMap sync.Map
 }
 
+func registerFunc() {
+	sqlite.RegisterDeterministicScalarFunction("uuid", 0, func(ctx *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		r, err := uuid.NewRandom()
+		if err != nil {
+			return nil, err
+		}
+		return r.String(), nil
+	})
+	sqlite.RegisterDeterministicScalarFunction("sha1", 1, func(ctx *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		var b []byte
+		switch v := args[0].(type) {
+		case []byte:
+			b = v
+		case string:
+			b = []byte(v)
+		default:
+			return nil, fmt.Errorf("invalid type: %T", v)
+		}
+
+		h := sha1.New() //nolint:gosec
+		h.Write(b)
+		return hex.EncodeToString(h.Sum(nil)), nil
+	})
+	sqlite.RegisterDeterministicScalarFunction("from_base64", 1, func(ctx *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		switch argTyped := args[0].(type) {
+		case string:
+			return base64.StdEncoding.DecodeString(argTyped)
+		default:
+			return nil, fmt.Errorf("unsupported type: %T", args[0])
+		}
+	})
+	sqlite.RegisterDeterministicScalarFunction("json_contains", 2, func(ctx *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		parse := func(arg driver.Value) (j []any, err error) {
+			var data []byte
+			switch argTyped := arg.(type) {
+			case string:
+				data = []byte(argTyped)
+			case []byte:
+				data = argTyped
+			default:
+				return nil, fmt.Errorf("unsupported type %T", arg)
+			}
+			err = json.Unmarshal(data, &j)
+			return
+		}
+		if args[0] == nil || args[1] == nil {
+			return nil, nil
+		}
+		j1, err := parse(args[0])
+		if err != nil {
+			return nil, err
+		}
+		j2, err := parse(args[1])
+		if err != nil {
+			return nil, err
+		}
+		elements := make(map[any]struct{}, len(j1))
+		for _, e := range j1 {
+			elements[e] = struct{}{}
+		}
+		for _, e := range j2 {
+			if _, ok := elements[e]; !ok {
+				return false, nil
+			}
+		}
+		return true, nil
+	})
+	sqlite.RegisterDeterministicScalarFunction("regexp", 2, func(ctx *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		s1 := args[0].(string)
+		s2 := args[1].(string)
+		matched, err := regexp.MatchString(s1, s2)
+		if err != nil {
+			return nil, fmt.Errorf("bad regular expression: %q", err)
+		}
+		return matched, nil
+	})
+	sqlite.RegisterDeterministicScalarFunction("concat", -1, func(ctx *sqlite.FunctionContext, args []driver.Value) (driver.Value, error) {
+		m := make([]string, 0, len(args))
+		for _, arg := range args {
+			switch argTyped := arg.(type) {
+			case string:
+				m = append(m, argTyped)
+			case []byte:
+				m = append(m, string(argTyped))
+			default:
+				return nil, fmt.Errorf("unsupported type: %T", arg)
+			}
+		}
+		return strings.Join(m, ""), nil
+	})
+}
+
 // New return a new mysql client, and try ping.
 func New(opts ...Option) (*DBConnect, error) {
 	options := initOptions(opts...)
+
+	// 注册正则
+	registerFunc()
 	// driver := BuildDBDriver(options)
 	db, err := sql.Open("sqlite", options.DBFilePath)
 	if err != nil {
