@@ -253,3 +253,24 @@ AAQZaLUOV+zp21mKCMZceKzCGP5QuynAMwIDAQAB
 	}
 	t.Logf("verify sign success")
 }
+
+func TestRSAHybrid(t *testing.T) {
+	priKey, pubKey, _ := GeneratePEMRSAKey(2048)
+
+	plainText := "hello world"
+	encrypted, err := RSAHybridEncryptPEM([]byte(plainText), pubKey, nil)
+	if err != nil {
+		t.Fatalf("Failed to encrypt: %v", err)
+	}
+
+	// Decrypt the data
+	decrypted, err := RSAHybridDecryptPEM(encrypted, priKey, nil)
+	if err != nil {
+		t.Fatalf("Failed to decrypt: %v", err)
+	}
+
+	// Verify the decrypted text matches the original
+	if string(decrypted) != plainText {
+		t.Fatalf("Decrypted text does not match original")
+	}
+}

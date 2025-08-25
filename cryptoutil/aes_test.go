@@ -20,7 +20,7 @@ func TestAESKey(t *testing.T) {
 
 func TestAESCrypt(t *testing.T) {
 	data := "hello world"
-	key := GenerateAESKey()
+	key := GenerateAESKeyWithSize(256)
 	fmt.Println(string(key))
 	crypted, err := AESEncrypt([]byte(data), key)
 	if err != nil {
