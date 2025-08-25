@@ -21,6 +21,7 @@ func TestAESKey(t *testing.T) {
 func TestAESCrypt(t *testing.T) {
 	data := "hello world"
 	key := GenerateAESKey()
+	fmt.Println(string(key))
 	crypted, err := AESEncrypt([]byte(data), key)
 	if err != nil {
 		t.Fatalf("AES encrypt failure: %s", err)
@@ -139,4 +140,40 @@ func TestAESDecodeTI(t *testing.T) {
 	m := map[string]any{}
 	json.Unmarshal(data, &m)
 	t.Logf("%#v", m)
+}
+
+func TestAESGCMCrypt(t *testing.T) {
+	data := "hello world"
+	key := GenerateAESKey()
+	fmt.Println(string(key))
+	crypted, err := AESEncryptGCM([]byte(data), key, nil)
+	if err != nil {
+		t.Fatalf("AES GCM encrypt failure: %s", err)
+	}
+	fmt.Printf("%x\n", crypted)
+	result, err := AESDecryptGCM(crypted, key, nil)
+	if err != nil {
+		t.Fatalf("AES GCM decrypt failure: %s", err)
+	}
+	if data != string(result) {
+		t.Fatalf("AES %s encrypt -> decrypt %s, not equal!!!", data, string(result))
+	}
+}
+
+func TestAESHMACCrypt(t *testing.T) {
+	data := "hello world"
+	key := GenerateAESKey()
+	fmt.Println(string(key))
+	crypted, err := AESEncryptCBC_HMAC([]byte(data), key, nil)
+	if err != nil {
+		t.Fatalf("AES HMAC encrypt failure: %s", err)
+	}
+	fmt.Printf("%x\n", crypted)
+	result, err := AESDecryptCBC_HMAC(crypted, key, nil)
+	if err != nil {
+		t.Fatalf("AES HMAC decrypt failure: %s", err)
+	}
+	if data != string(result) {
+		t.Fatalf("AES %s encrypt -> decrypt %s, not equal!!!", data, string(result))
+	}
 }
