@@ -27,7 +27,10 @@ func printToPDFWithURL(url string, res *[]byte, actions ...chromedp.Action) chro
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			// 如果有前置行为，先执行
 			for _, action := range actions {
-				action.Do(ctx)
+				err := action.Do(ctx)
+				if err != nil {
+					return err
+				}
 			}
 			header, footer := "", ""
 			headerCtx, _ := context.WithTimeout(ctx, time.Second*5)
